@@ -1,19 +1,24 @@
+<!-- crm.html (VERSIÓN FINAL Y SEGURA) -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Sistema CITFSA</title>
-
-    <!-- LÍNEAS CRÍTICAS DE SEGURIDAD: COPIAR EN TODAS LAS PÁGINAS -->
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/auth.js" defer></script>
-
     <link rel="stylesheet" href="css/style.css">
-    
-    <!-- ESTE SCRIPT PROTEGE LA PÁGINA -->
+
     <script>
-        document.addEventListener('DOMContentLoaded', checkAuth);
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Primero, verifica si el usuario tiene sesión
+            checkAuth();
+
+            // 2. Si la tiene, llama a la nueva función para cargar el iframe
+            const crmAppUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
+            embedAppSheet('appsheet-iframe', crmAppUrl);
+        });
     </script>
 </head>
 <body>
@@ -23,10 +28,8 @@
         <button onclick="handleLogout()">Cerrar Sesión</button>
     </header>
     <main class="app-container">
-        <iframe
-            src="https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67"
-            frameborder="0">
-        </iframe>
+        <!-- El iframe ahora empieza vacío y se carga con JavaScript -->
+        <iframe id="appsheet-iframe" frameborder="0"></iframe>
     </main>
 </body>
 </html>
