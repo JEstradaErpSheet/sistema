@@ -1,5 +1,5 @@
 // =================================================================
-// ARCHIVO: js/auth.js (VERSIÓN CON REDIRECCIÓN EXPLÍCITA)
+// ARCHIVO: js/auth.js (VERSIÓN FINAL Y COMPLETA)
 // =================================================================
 
 // --- Configuración de Supabase ---
@@ -13,17 +13,12 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
  * Inicia el proceso de login con Google, especificando a dónde volver.
  */
 async function signInWithGoogle() {
-    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+    await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            // Le decimos explícitamente a dónde volver después del login.
-            // Esto anula la configuración por defecto del panel de Supabase.
             redirectTo: 'https://jestradaerpsheet.github.io/sistema/'
         }
     });
-    if (error) {
-        console.error('Error al iniciar sesión con Google:', error);
-    }
 }
 
 /**
@@ -36,6 +31,7 @@ async function handleLogout() {
 
 /**
  * Verifica si hay una sesión activa. Si no la hay, redirige al login.
+ * Esta es la función que protege las páginas internas.
  */
 async function checkAuth() {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -62,12 +58,26 @@ async function embedAppSheet(iframeId, baseAppUrl) {
 
 // --- Asignador de Eventos Global ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Escucha el clic en el botón de Google
+    // Asigna la función de login al botón de Google si existe en la página.
     const googleButton = document.getElementById('google-login-button');
     if (googleButton) {
         googleButton.addEventListener('click', signInWithGoogle);
     }
-
-    // Al recargar la página, supabase-js maneja el token de la URL
-    // y la función checkAuth en las páginas protegidas verificará la sesión.
+    
+    // ===============================================================
+    // ¡NUEVO BLOQUE DE CÓDIGO! ESTA ES LA PIEZA FINAL.
+    // ===============================================================
+    // Escucha los cambios en el estado de autenticación.
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        // Comprueba si el evento es un inicio de sesión exitoso.
+        if (event === 'SIGNED_IN' && session) {
+            // Comprueba si estamos actualmente en la página de login.
+            const isLoginPage = window.location.pathname.endsWith('/') || window.location.pathname.endsWith('index.html');
+            if (isLoginPage) {
+                // Si acabamos de iniciar sesión y estamos en la página de login,
+                // nos redirige a la página principal.
+                window.location.href = 'home.html';
+            }
+        }
+    });
 });
