@@ -1,4 +1,3 @@
-<!-- crm.html (VERSIÓN FINAL Y SEGURA) -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Sistema CITFSA</title>
     
+    <!-- Scripts requeridos: Librería Supabase y nuestro script de autenticación -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/auth.js" defer></script>
+    
+    <!-- Hoja de estilos -->
     <link rel="stylesheet" href="css/style.css">
 
+    <!-- Script de ejecución para esta página específica -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Primero, verifica si el usuario tiene sesión
+            // Paso 1: Proteger la página. Si no hay sesión, nos redirigirá al login.
             checkAuth();
 
-            // 2. Si la tiene, llama a la nueva función para cargar el iframe
+            // Paso 2: Si la protección pasa, obtenemos la URL base de la app
+            // y llamamos a la función que cargará el iframe de forma segura.
             const crmAppUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
             embedAppSheet('appsheet-iframe', crmAppUrl);
         });
@@ -28,7 +32,7 @@
         <button onclick="handleLogout()">Cerrar Sesión</button>
     </header>
     <main class="app-container">
-        <!-- El iframe ahora empieza vacío y se carga con JavaScript -->
+        <!-- El iframe empieza vacío. JavaScript se encarga de asignarle la URL correcta. -->
         <iframe id="appsheet-iframe" frameborder="0"></iframe>
     </main>
 </body>
