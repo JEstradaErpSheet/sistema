@@ -1,5 +1,5 @@
 // =================================================================
-// ARCHIVO: js/auth.js (VERSIÓN FINAL Y COMPLETA)
+// ARCHIVO: js/auth.js (VERSIÓN FINAL CON VERIFICACIÓN EN CLIENTE)
 // =================================================================
 
 // --- Configuración de Supabase ---
@@ -9,9 +9,6 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 // --- Funciones de Autenticación ---
 
-/**
- * Inicia el proceso de login con Google, especificando a dónde volver.
- */
 async function signInWithGoogle() {
     await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
@@ -21,18 +18,11 @@ async function signInWithGoogle() {
     });
 }
 
-/**
- * Cierra la sesión del usuario en Supabase y redirige al login.
- */
 async function handleLogout() {
     await supabaseClient.auth.signOut();
     window.location.href = 'index.html';
 }
 
-/**
- * Verifica si hay una sesión activa. Si no la hay, redirige al login.
- * Esta es la función que protege las páginas internas.
- */
 async function checkAuth() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) {
@@ -40,14 +30,11 @@ async function checkAuth() {
     }
 }
 
-/**
- * Carga el iframe de AppSheet, pasándole el email del usuario de forma segura.
- */
 async function embedAppSheet(iframeId, baseAppUrl) {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
         const userEmail = session.user.email;
-        console.log('Intentando cargar AppSheet para el usuario:', userEmail);
+        console.log('Cargando AppSheet para:', userEmail);
         const iframe = document.getElementById(iframeId);
         if (iframe) {
             const embedUrl = `${baseAppUrl}&useremail=${encodeURIComponent(userEmail)}&embed=true`;
@@ -58,25 +45,42 @@ async function embedAppSheet(iframeId, baseAppUrl) {
 
 // --- Asignador de Eventos Global ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Asigna la función de login al botón de Google si existe en la página.
     const googleButton = document.getElementById('google-login-button');
     if (googleButton) {
         googleButton.addEventListener('click', signInWithGoogle);
     }
     
     // ===============================================================
-    // ¡NUEVO BLOQUE DE CÓDIGO! ESTA ES LA PIEZA FINAL.
+    // LÓGICA DE VERIFICACIÓN FINAL
     // ===============================================================
-    // Escucha los cambios en el estado de autenticación.
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-        // Comprueba si el evento es un inicio de sesión exitoso.
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        // Se activa cuando un usuario inicia sesión
         if (event === 'SIGNED_IN' && session) {
-            // Comprueba si estamos actualmente en la página de login.
-            const isLoginPage = window.location.pathname.endsWith('/') || window.location.pathname.endsWith('index.html');
-            if (isLoginPage) {
-                // Si acabamos de iniciar sesión y estamos en la página de login,
-                // nos redirige a la página principal.
-                window.location.href = 'home.html';
+            const userEmail = session.user.email;
+            
+            // Verificamos si el usuario está en nuestra lista de permitidos
+            try {
+                const { data: isAllowed, error } = await supabaseClient.rpc(
+                  'is_user_allowed', 
+                  { user_email: userEmail }
+                );
+
+                if (error) throw error; // Si hay un error, lo tratamos como no permitido
+
+                if (isAllowed === true) {
+                    // SI ESTÁ PERMITIDO: redirigir a la página principal
+                    console.log('Acceso concedido para:', userEmail);
+                    window.location.href = 'home.html';
+                } else {
+                    // NO ESTÁ PERMITIDO: expulsarlo inmediatamente
+                    console.warn('ACCESO DENEGADO para:', userEmail, '. No está en la lista de permitidos.');
+                    await handleLogout(); // Cierra su sesión
+                    alert('Acceso denegado. Este usuario no está autorizado.'); // Muestra un mensaje
+                }
+            } catch (err) {
+                console.error('Error durante la verificación:', err.message);
+                await handleLogout();
+                alert('Ocurrió un error al verificar los permisos.');
             }
         }
     });
