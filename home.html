@@ -4,17 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Principal - Sistema CITFSA</title>
+    
+    <!-- LÍNEAS CRÍTICAS DE SEGURIDAD: NO BORRAR -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/auth.js" defer></script>
+    
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- ESTE SCRIPT PROTEGE LA PÁGINA -->
     <script>
-        // Proteger esta página al cargar
-        document.addEventListener('DOMContentLoaded', checkAuth);
+        document.addEventListener('DOMContentLoaded', () => {
+            // La función checkAuth() viene de auth.js y se ejecuta al cargar la página.
+            // Si el usuario no tiene sesión, lo redirige al login.
+            checkAuth();
+        });
     </script>
 </head>
 <body>
     <header class="main-header">
         <h1>Portal de Aplicaciones</h1>
+        <!-- El botón llama a la función de logout de auth.js -->
         <button onclick="handleLogout()">Cerrar Sesión</button>
     </header>
     <nav class="main-nav">
