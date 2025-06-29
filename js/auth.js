@@ -1,7 +1,9 @@
-// --- Configuración de Supabase ---
+// --- Configuración de Supabase (CORREGIDO) ---
 const supabaseUrl = 'https://vqdgrzrxnqrgkafuwppy.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZGdyenJ4bnFyZ2thZnV3cHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDYxNjgsImV4cCI6MjA2NTU4MjE2OH0.FPcoDcsWrS-y9LwiY0mgHfjA3C4svP4lGP11vNygktQ';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+// CORRECCIÓN: Usamos un nombre de variable diferente ('supabaseClient') para evitar conflictos.
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 // --- Funciones de Autenticación ---
 
@@ -11,9 +13,11 @@ async function handleLogin(event) {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('error-message');
+    errorMessage.textContent = ''; // Limpiar errores previos
 
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        // CORRECCIÓN: Usamos la nueva variable 'supabaseClient'
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
             email: email,
             password: password,
         });
@@ -33,7 +37,8 @@ async function handleLogin(event) {
 
 // Función para cerrar sesión
 async function handleLogout() {
-    const { error } = await supabase.auth.signOut();
+    // CORRECCIÓN: Usamos la nueva variable 'supabaseClient'
+    const { error } = await supabaseClient.auth.signOut();
     if (error) {
         console.error('Error al cerrar sesión:', error);
     } else {
@@ -44,7 +49,8 @@ async function handleLogout() {
 
 // Función para proteger las páginas
 async function checkAuth() {
-    const { data: { session } } = await supabase.auth.getSession();
+    // CORRECCIÓN: Usamos la nueva variable 'supabaseClient'
+    const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) {
         // Si no hay sesión, redirigir al login
         window.location.href = 'index.html';
