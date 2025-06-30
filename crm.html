@@ -1,53 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- =============================================================== -->
-    <!-- ESTA ES LA SECCIÓN <HEAD> CORRECTA Y FINAL -->
-    <!-- Contiene los scripts en el orden correcto para que todo funcione. -->
-    <!-- =============================================================== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Sistema CITFSA</title>
-    
-    <!-- 1. Cargar la librería externa de Supabase PRIMERO -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- 2. Cargar NUESTRO script de autenticación (js/auth.js) DESPUÉS. -->
-    <!-- Al no tener 'defer', se garantiza que se carga antes de usar sus funciones. -->
     <script src="js/auth.js"></script>
-    
-    <!-- 3. Cargar nuestra hoja de estilos -->
     <link rel="stylesheet" href="css/style.css">
-
-    <!-- 4. Finalmente, ejecutar el script específico de esta página -->
     <script>
-        // Espera a que todo el contenido de la página esté listo
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // Llama a la función de seguridad desde auth.js
-            // Si el usuario no tiene sesión, será redirigido al login.
             checkAuth();
-            
-            // Llama a la función que carga el iframe desde auth.js
-            // ¡¡¡ ESTA ES LA ÚNICA LÍNEA QUE DEBES CAMBIAR PARA OTROS MÓDULOS !!!
             const appUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
-            embedAppSheet('app-iframe', appUrl);
+            const iframe = document.getElementById('app-iframe');
+            if (iframe) {
+                const embedUrl = `${appUrl}&embed=true`; 
+                iframe.src = embedUrl;
+                console.log("URL del iframe establecida (modo público):", embedUrl);
+            }
         });
     </script>
 </head>
-
 <body>
-    <!-- =============================================================== -->
-    <!-- ESTE ES EL CUERPO <BODY> CORRECTO Y FINAL -->
-    <!-- Contiene el header unificado y el contenedor para el iframe. -->
-    <!-- =============================================================== -->
     <div class="page-container">
-        
         <header class="main-header">
             <div class="header-logo">
                 <a href="home.html" class="home-link">Sistema CITFSA</a>
             </div>
-            
             <nav class="module-nav">
                 <a href="crm.html">CRM</a>
                 <a href="contabilidad.html">Contabilidad</a>
@@ -60,18 +38,13 @@
                 <a href="presupuesto.html">Presupuesto</a>
                 <a href="dms.html">Documentos</a>
             </nav>
-
             <div class="header-user">
-                <!-- Este botón llamará a la función handleLogout() definida en auth.js -->
                 <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
             </div>
         </header>
-
         <main class="iframe-content">
-            <!-- Este iframe empieza vacío y el script de arriba se encarga de llenarlo -->
             <iframe id="app-iframe" frameborder="0"></iframe>
         </main>
-        
     </div>
 </body>
 </html>
