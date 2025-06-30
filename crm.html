@@ -5,35 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Sistema CITFSA</title>
     
-    <!-- Scripts requeridos: Librería Supabase y nuestro script de autenticación -->
+    <!-- Scripts y Estilos Requeridos (igual que en home.html) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/auth.js" defer></script>
-    
-    <!-- Hoja de estilos -->
     <link rel="stylesheet" href="css/style.css">
 
-    <!-- Script de ejecución para esta página específica -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Paso 1: Proteger la página. Si no hay sesión, nos redirigirá al login.
+            // 1. Proteger la página contra acceso no autorizado
             checkAuth();
 
-            // Paso 2: Si la protección pasa, obtenemos la URL base de la app
-            // y llamamos a la función que cargará el iframe de forma segura.
-            const crmAppUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
-            embedAppSheet('appsheet-iframe', crmAppUrl);
+            // 2. Cargar el iframe correspondiente a esta página
+            // ¡¡¡CAMBIA ESTA URL PARA CADA MÓDULO!!!
+            const appUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
+            embedAppSheet('app-iframe', appUrl);
         });
     </script>
 </head>
 <body>
-    <header class="main-header">
-        <h1>CRM</h1>
-        <a href="home.html" class="back-button">Volver al Inicio</a>
-        <button onclick="handleLogout()">Cerrar Sesión</button>
-    </header>
-    <main class="app-container">
-        <!-- El iframe empieza vacío. JavaScript se encarga de asignarle la URL correcta. -->
-        <iframe id="appsheet-iframe" frameborder="0"></iframe>
-    </main>
+    <!-- Contenedor principal que ayuda con el layout -->
+    <div class="page-container">
+        
+        <!-- HEADER UNIFICADO (ahora con todos los links) -->
+        <header class="main-header">
+            <div class="header-logo">
+                <!-- Enlace para volver al panel principal -->
+                <a href="home.html" class="home-link">Sistema CITFSA</a>
+            </div>
+            
+            <!-- Navegación de Módulos -->
+            <nav class="module-nav">
+                <a href="crm.html">CRM</a>
+                <a href="contabilidad.html">Contabilidad</a>
+                <a href="ventas.html">Ventas</a>
+                <a href="compra.html">Compras</a>
+                <a href="inventarios.html">Inventarios</a>
+                <!-- Puedes añadir más aquí o usar un menú desplegable si se llena mucho -->
+            </nav>
+
+            <div class="header-user">
+                <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <!-- Contenedor del Iframe -->
+        <main class="iframe-content">
+            <!-- El iframe empieza vacío y JavaScript lo carga -->
+            <iframe id="app-iframe" frameborder="0"></iframe>
+        </main>
+        
+    </div>
 </body>
 </html>
