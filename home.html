@@ -5,38 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Principal - Sistema CITFSA</title>
     
-    <!-- LÍNEAS CRÍTICAS DE SEGURIDAD: NO BORRAR -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/auth.js" defer></script>
-    
     <link rel="stylesheet" href="css/style.css">
-    
-    <!-- ESTE SCRIPT PROTEGE LA PÁGINA -->
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // La función checkAuth() viene de auth.js y se ejecuta al cargar la página.
-            // Si el usuario no tiene sesión, lo redirige al login.
-            checkAuth();
-        });
+        document.addEventListener('DOMContentLoaded', checkAuth);
     </script>
 </head>
 <body>
-    <header class="main-header">
-        <h1>Portal de Aplicaciones</h1>
-        <!-- El botón llama a la función de logout de auth.js -->
-        <button onclick="handleLogout()">Cerrar Sesión</button>
-    </header>
-    <nav class="main-nav">
-        <a href="crm.html">CRM</a>
-        <a href="contabilidad.html">Contabilidad</a>
-        <a href="ventas.html">Ventas</a>
-        <a href="compra.html">Compra</a>
-        <a href="inventarios.html">Inventarios</a>
-        <a href="proyectos.html">Proyectos</a>
-        <a href="nominas.html">Nóminas</a>
-        <a href="activo.html">Activo</a>
-        <a href="presupuesto.html">Presupuesto</a>
-        <a href="dms.html">DMS</a>
-    </nav>
+    <div class="main-container">
+        <header class="main-header">
+            <div class="header-logo">
+                <!-- Puedes poner un logo aquí si quieres en el futuro -->
+                <span>Sistema CITFSA</span>
+            </div>
+            <div class="header-user">
+                <!-- El botón de Cerrar Sesión ahora es más estilizado -->
+                <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <main class="content-area">
+            <nav class="app-grid">
+                <!-- Tarjeta para CRM -->
+                <a href="crm.html" class="app-card">
+                    <img src="img/crm.png" alt="Icono de CRM">
+                    <span>CRM</span>
+                </a>
+                <!-- Tarjeta para Contabilidad -->
+                <a href="contabilidad.html" class="app-card">
+                    <img src="img/contabilidad.png" alt="Icono de Contabilidad">
+                    <span>Contabilidad</span>
+                </a>
+                <!-- Tarjeta para Ventas -->
+                <a href="ventas.html" class="app-card">
+                    <img src="img/ventas.png" alt="Icono de Ventas">
+                    <span>Ventas</span>
+                </a>
+                <!-- Tarjeta para Compras -->
+                <a href="compra.html" class="app-card">
+                    <img src="img/compras.png" alt="Icono de Compras">
+                    <span>Compras</span>
+                </a>
+                <!-- Tarjeta para Inventarios -->
+                <a href="inventarios.html" class="app-card">
+                    <img src="img/inventarios.png" alt="Icono de Inventarios">
+                    <span>Inventarios</span>
+                </a>
+                <!-- Tarjeta para Proyectos -->
+                <a href="proyectos.html" class="app-card">
+                    <img src="img/proyectos.png" alt="Icono de Proyectos">
+                    <span>Proyectos</span>
+                </a>
+                <!-- Tarjeta para Nóminas -->
+                <a href="nominas.html" class="app-card">
+                    <img src="img/nominas.png" alt="Icono de Nóminas">
+                    <span>Nóminas</span>
+                </a>
+                <!-- Tarjeta para Activos -->
+                <a href="activo.html" class="app-card">
+                    <img src="img/activos.png" alt="Icono de Activos">
+                    <span>Activos</span>
+                </a>
+                <!-- Tarjeta para Presupuestos -->
+                <a href="presupuesto.html" class="app-card">
+                    <img src="img/presupuestos.png" alt="Icono de Presupuestos">
+                    <span>Presupuestos</span>
+                </a>
+                <!-- Tarjeta para Documentos -->
+                <a href="dms.html" class="app-card">
+                    <img src="img/documentos.png" alt="Icono de DMS">
+                    <span>Documentos</span>
+                </a>
+                <!-- ¡Añade más tarjetas aquí si es necesario! -->
+            </nav>
+        </main>
+
+        <footer class="main-footer">
+            <p>© 2025 CITFSA. Todos los derechos reservados.</p>
+        </footer>
+    </div>
 </body>
 </html>
