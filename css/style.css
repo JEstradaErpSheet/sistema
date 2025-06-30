@@ -127,13 +127,63 @@ body, html {
 .google-btn img { width: 20px; height: 20px; background-color: white; border-radius: 50%; padding: 2px; }
 
 /* ============================================== */
-/* ESTILOS PARA LA PÁGINA DE APPSHEET (iframe)    */
+/* ESTILOS PARA LA PÁGINA DE MÓDULOS (iframe)     */
 /* ============================================== */
-.app-container iframe {
+
+/* Contenedor de página para asegurar que el header se quede arriba */
+.page-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; /* Evita el scroll en el body */
+}
+
+/* Header modificado para incluir la navegación */
+.main-header {
+    flex-shrink: 0; /* Evita que el header se encoja */
+}
+
+.home-link {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+/* Navegación entre módulos en el header */
+.module-nav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.module-nav a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-bottom-color 0.2s;
+}
+
+.module-nav a:hover {
+    color: var(--accent-color);
+}
+
+/* Estilo para el link del módulo activo (requiere un poco de JS extra si lo quieres) */
+/* Por ahora, lo dejamos simple */
+
+
+/* Área principal que contiene el iframe */
+.iframe-content {
+    flex-grow: 1; /* Hace que ocupe todo el espacio restante */
+    position: relative;
+}
+
+#app-iframe {
     position: absolute;
-    top: 70px; /* Ajustado a la nueva altura del header */
+    top: 0;
     left: 0;
     width: 100%;
-    height: calc(100% - 70px);
+    height: 100%;
     border: none;
 }
