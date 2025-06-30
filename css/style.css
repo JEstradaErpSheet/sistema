@@ -1,48 +1,139 @@
-/* Estilos generales */
-body { font-family: sans-serif; margin: 0; background-color: #f4f4f9; }
-.error { color: red; }
+/* ============================================== */
+/* ESTILOS GENERALES Y NUEVA PALETA DE COLORES    */
+/* ============================================== */
+:root {
+    --bg-color: #f4f7f6; /* Un gris muy claro y suave para el fondo */
+    --header-bg: #ffffff; /* Cabecera blanca y limpia */
+    --card-bg: #ffffff; /* Tarjetas blancas */
+    --text-color: #333a45; /* Texto oscuro pero no negro puro */
+    --accent-color: #007bff; /* Mantenemos el azul como color de acento */
+    --border-color: #e9ecef; /* Un borde sutil */
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Sombra suave para profundidad */
+}
 
-/* Contenedor del Login */
-.login-container { max-width: 400px; margin: 100px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; margin-bottom: 5px; }
-.form-group input { width: 100%; padding: 8px; box-sizing: border-box; }
-button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-button:hover { background-color: #0056b3; }
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
 
-/* Cabecera y Navegación */
-.main-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: #333; color: white; }
-.main-header h1 { margin: 0; }
-.main-header button, .back-button { background: #555; color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; border: none; cursor: pointer; }
-.main-nav { display: flex; flex-wrap: wrap; justify-content: center; padding: 20px; gap: 15px; }
-.main-nav a { padding: 15px 30px; background: white; text-decoration: none; color: #333; border-radius: 5px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); }
-.main-nav a:hover { background-color: #e9e9e9; }
-
-/* Contenedor de AppSheet */
-.app-container iframe { position: absolute; top: 80px; left: 0; width: 100%; height: calc(100% - 80px); border: none; }
-
-/* Añadir al final de style.css */
-.google-btn {
+.main-container {
     display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content-area {
+    flex-grow: 1;
+    padding: 2rem;
+}
+
+/* ============================================== */
+/* HEADER / CABECERA ESTILIZADA                   */
+/* ============================================== */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.header-logo span {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.logout-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.logout-button:hover {
+    background-color: #0056b3;
+}
+
+/* ============================================== */
+/* PANEL DE APLICACIONES (GRID DE TARJETAS)       */
+/* ============================================== */
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.5rem;
+}
+
+.app-card {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 15px;
-    background-color: #4285F4;
-    color: white;
-    font-size: 16px;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-color);
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.app-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+}
+
+.app-card img {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1rem;
+}
+
+.app-card span {
+    font-weight: 500;
+    text-align: center;
+}
+
+/* ============================================== */
+/* FOOTER / PIE DE PÁGINA PROFESIONAL             */
+/* ============================================== */
+.main-footer {
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.9rem;
+    color: #888;
+    background-color: var(--header-bg);
+    border-top: 1px solid var(--border-color);
+}
+
+/* ============================================== */
+/* ESTILOS PARA LA PÁGINA DE LOGIN (sin cambios)  */
+/* ============================================== */
+.login-container { max-width: 400px; margin: 100px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.login-container h2 { text-align: center; }
+.login-container p { text-align: center; color: #666; margin-bottom: 20px; }
+.google-btn { display: flex; align-items: center; justify-content: center; gap: 15px; background-color: #4285F4; color: white; font-size: 16px; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; width: 100%; }
+.google-btn:hover { background-color: #357ae8; }
+.google-btn img { width: 20px; height: 20px; background-color: white; border-radius: 50%; padding: 2px; }
+
+/* ============================================== */
+/* ESTILOS PARA LA PÁGINA DE APPSHEET (iframe)    */
+/* ============================================== */
+.app-container iframe {
+    position: absolute;
+    top: 70px; /* Ajustado a la nueva altura del header */
+    left: 0;
     width: 100%;
-}
-.google-btn:hover {
-    background-color: #357ae8;
-}
-.google-btn img {
-    width: 20px;
-    height: 20px;
-    background-color: white;
-    border-radius: 50%;
-    padding: 2px;
+    height: calc(100% - 70px);
+    border: none;
 }
