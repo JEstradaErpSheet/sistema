@@ -1,61 +1,41 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM - Sistema CITFSA</title>
-    
-    <!-- =============================================================== -->
-    <!-- PIEZAS CRÍTICAS: Aseguran que todo el JavaScript funcione -->
-    <!-- =============================================================== -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/auth.js" defer></script> <!-- Carga nuestro script de autenticación -->
-    
-    <link rel="stylesheet" href="css/style.css">
-
-    <!-- Script específico para esta página -->
+    <!-- Script específico para esta página (VERSIÓN DE DEPURACIÓN) -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Protege la página
-            checkAuth();
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("Página cargada, iniciando scripts de depuración...");
 
-            // 2. Carga el iframe correcto
-            const appUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
-            embedAppSheet('app-iframe', appUrl); // Llama a la función de js/auth.js
+            // 1. Proteger la página
+            console.log("Paso 1: Ejecutando checkAuth() para proteger la página.");
+            checkAuth(); // Esto redirigirá si no hay sesión.
+
+            // 2. Intentar cargar el iframe
+            console.log("Paso 2: Intentando cargar el iframe de AppSheet.");
+            
+            try {
+                // Obtenemos la sesión para asegurarnos de que estamos logueados
+                const { data: { session } } = await supabaseClient.auth.getSession();
+
+                if (session) {
+                    console.log("Sesión encontrada para el usuario:", session.user.email);
+
+                    // Buscamos el elemento del iframe en el HTML
+                    const iframeElement = document.getElementById('app-iframe');
+                    
+                    if (iframeElement) {
+                        console.log("Elemento iframe encontrado en el HTML. Procediendo a establecer la URL.");
+                        const appUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
+                        const embedUrl = `${appUrl}&useremail=${encodeURIComponent(session.user.email)}&embed=true`;
+                        
+                        iframeElement.src = embedUrl;
+                        console.log("¡ÉXITO! URL del iframe establecida:", embedUrl);
+                    } else {
+                        // ¡¡¡ ESTE ES EL ERROR MÁS PROBABLE !!!
+                        console.error("¡FALLO CRÍTICO! Elemento iframe con id 'app-iframe' NO encontrado en el HTML.");
+                    }
+                } else {
+                    console.error("Fallo: No se encontró una sesión de usuario activa después de checkAuth. Esto no debería pasar.");
+                }
+            } catch (error) {
+                console.error("Ocurrió un error inesperado durante el proceso de carga del iframe:", error);
+            }
         });
     </script>
-</head>
-<body>
-    <div class="page-container">
-        
-        <header class="main-header">
-            <div class="header-logo">
-                <a href="home.html" class="home-link">Sistema CITFSA</a>
-            </div>
-            
-            <nav class="module-nav">
-                <a href="crm.html">CRM</a>
-                <a href="contabilidad.html">Contabilidad</a>
-                <a href="ventas.html">Ventas</a>
-                <a href="compra.html">Compras</a>
-                <a href="inventarios.html">Inventarios</a>
-                <a href="proyectos.html">Proyectos</a>
-                <a href="nominas.html">Nóminas</a>
-                <a href="activo.html">Activo</a>
-                <a href="presupuesto.html">Presupuesto</a>
-                <a href="dms.html">Documentos</a>
-            </nav>
-
-            <div class="header-user">
-                <!-- Este botón ahora llamará correctamente a la función handleLogout() -->
-                <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
-            </div>
-        </header>
-
-        <main class="iframe-content">
-            <iframe id="app-iframe" frameborder="0"></iframe>
-        </main>
-        
-    </div>
-</body>
-</html>
