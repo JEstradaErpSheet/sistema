@@ -13,7 +13,7 @@ async function signInWithGoogle() {
     await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: 'https://jestradaerpsheet.github.io/sistema/'
+            redirectTo: 'https://sistema.citfsa.com/'
         }
     });
 }
