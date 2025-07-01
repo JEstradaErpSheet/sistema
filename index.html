@@ -4,9 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Sistema CITFSA</title>
+    
+    <!-- =============================================================== -->
+    <!-- Scripts en el orden correcto -->
+    <!-- =============================================================== -->
+    <!-- 1. Cargar la librería externa de Supabase PRIMERO -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 2. Cargar NUESTRO script de autenticación (auth.js) DESPUÉS. -->
     <script src="auth.js"></script>
+    
+    <!-- 3. Cargar nuestra hoja de estilos -->
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- =============================================================== -->
+    <!-- Script específico para la página de Login -->
+    <!-- =============================================================== -->
+    <script>
+        // Espera a que todo el contenido de la página esté listo
+        document.addEventListener('DOMContentLoaded', () => {
+          
+          // 1. Asigna el evento al botón de login para que llame a la función de auth.js
+          const googleButton = document.getElementById('google-login-button');
+          if (googleButton) {
+            googleButton.addEventListener('click', signInWithGoogle);
+          }
+
+          // 2. Escucha el evento de login exitoso para verificar y redirigir.
+          // Este es el "control de seguridad" que se activa DESPUÉS de volver de Google.
+          supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+              
+              // Llama a nuestra función de SQL para ver si el usuario está en la lista blanca
+              try {
+                const { data: isAllowed, error } = await supabaseClient.rpc('is_user_allowed', { user_email: session.user.email });
+                
+                if (error) { throw error; } // Si la llamada a la función falla, lo tratamos como denegado.
+                
+                if (isAllowed === true) {
+                  // Si está permitido, lo enviamos a la página principal
+                  window.location.href = '/home.html';
+                } else {
+                  // Si no está permitido, lo expulsamos inmediatamente y le avisamos
+                  await handleLogout();
+                  alert('Acceso denegado. Este usuario no está autorizado.');
+                }
+              } catch (err) {
+                  console.error("Error durante la verificación de permisos:", err);
+                  await handleLogout();
+                  alert('Ocurrió un error al verificar sus permisos. Por favor, intente de nuevo.');
+              }
+            }
+          });
+        });
+    </script>
 </head>
 <body>
     <div class="login-container">
