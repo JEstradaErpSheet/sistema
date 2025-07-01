@@ -5,28 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Principal - Sistema CITFSA</title>
     
+    <!-- Scripts en el orden correcto y con la ruta correcta -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="auth.js"></script>
     <link rel="stylesheet" href="css/style.css">
 
+    <!-- =============================================================== -->
+    <!-- Script Final para la Página Principal -->
+    <!-- =============================================================== -->
     <script>
-        document.addEventListener('DOMContentLoaded', checkAuth);
+        // Cuando el contenido de la página esté listo...
+        document.addEventListener('DOMContentLoaded', () => {
+            // ...primero, asegura la página.
+            checkAuth();
+            
+            // ...y después, ejecuta las funciones específicas de esta página (como el saludo).
+            initializeHomePage(); 
+        });
     </script>
 </head>
 <body>
     <div class="main-container">
         <header class="main-header">
             <div class="header-logo">
-                <!-- Puedes poner un logo aquí si quieres en el futuro -->
                 <span>Sistema CITFSA</span>
             </div>
             <div class="header-user">
-                <!-- El botón de Cerrar Sesión ahora es más estilizado -->
                 <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
             </div>
         </header>
 
         <main class="content-area">
+            
+            <!-- Elemento para el mensaje de bienvenida personalizado -->
+            <h2 id="welcome-message" class="welcome-heading"></h2>
+
             <nav class="app-grid">
                 <!-- Tarjeta para CRM -->
                 <a href="crm.html" class="app-card">
@@ -78,7 +91,6 @@
                     <img src="img/Documento.png" alt="Icono de DMS">
                     <span>Documentos</span>
                 </a>
-                <!-- ¡Añade más tarjetas aquí si es necesario! -->
             </nav>
         </main>
 
