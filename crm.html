@@ -4,42 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Sistema CITFSA</title>
+    
+    <!-- Cargamos las herramientas de seguridad -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="auth.js"></script>
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- El único script que necesitamos: el guardia de seguridad -->
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await checkAuth();
-                console.log("checkAuth() completado. Procediendo a cargar el iframe.");
-                const appUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
-                embedAppSheet('app-iframe', appUrl);
-            } catch (error) {
-                console.error("Un error ocurrió durante la inicialización de la página:", error);
-                window.location.href = '/';
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth(); // Si no hay sesión, nos expulsa.
         });
     </script>
 </head>
 <body>
     <div class="page-container">
         <header class="main-header">
-            <div class="header-logo"><a href="home.html" class="home-link">Sistema CITFSA</a></div>
-            <nav class="module-nav">
-                <a href="crm.html">CRM</a>
-                <a href="contabilidad.html">Contabilidad</a>
-                <a href="ventas.html">Ventas</a>
-                <a href="compra.html">Compras</a>
-                <a href="inventarios.html">Inventarios</a>
-                <a href="proyectos.html">Proyectos</a>
-                <a href="nominas.html">Nóminas</a>
-                <a href="activo.html">Activo</a>
-                <a href="presupuesto.html">Presupuesto</a>
-                <a href="dms.html">Documentos</a>
-            </nav>
-            <div class="header-user"><button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button></div>
+            <!-- ... tu header con la navegación ... -->
+            <div class="header-user">
+                <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
+            </div>
         </header>
-        <main class="iframe-content"><iframe id="app-iframe" frameborder="0"></iframe></main>
+        
+        <!-- Contenido principal con el iframe CARGADO DIRECTAMENTE -->
+        <main class="iframe-content">
+            <!-- Ya no usamos JavaScript para cargar esto. Lo ponemos directamente en el HTML. -->
+            <iframe 
+                id="app-iframe" 
+                frameborder="0"
+                src="https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67?&embed=true">
+            </iframe>
+        </main>
     </div>
 </body>
 </html>
