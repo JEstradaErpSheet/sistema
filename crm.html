@@ -1,35 +1,23 @@
-<!DOCTYPE html>
-<html lang="es">
 <head>
-    <!-- =============================================================== -->
-    <!-- ESTA ES LA SECCIÓN <HEAD> CORRECTA Y FINAL -->
-    <!-- Contiene los scripts en el orden correcto para que todo funcione. -->
-    <!-- =============================================================== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Sistema CITFSA</title>
     
-    <!-- 1. Cargar la librería externa de Supabase PRIMERO -->
+    <!-- PASO 1: Traemos las herramientas básicas de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- 2. Cargar NUESTRO script, que depende del anterior. SIN 'defer'. -->
+    <!-- PASO 2: Abrimos NUESTRA caja de herramientas (auth.js). -->
+    <!-- Al quitar 'defer', le decimos al navegador: "¡Abre esta caja AHORA MISMO, es urgente!". -->
     <script src="js/auth.js"></script>
     
-    <!-- 3. Cargar nuestra hoja de estilos -->
     <link rel="stylesheet" href="css/style.css">
 
-    <!-- 4. Finalmente, ejecutar el script específico de esta página -->
+    <!-- PASO 3: Y SOLO AHORA, que estamos 100% seguros de que la caja está abierta... -->
     <script>
-        // Espera a que todo el contenido de la página esté listo
+        // ...empezamos a dar las instrucciones que usan las herramientas.
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // Llama a la función de seguridad desde auth.js. Esto protege la página.
-            checkAuth();
-            
-            // Ahora sí, llamamos a la función que carga el iframe.
-            // Esta vez funcionará porque js/auth.js ya está cargado.
-            const appUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
-            embedAppSheet('app-iframe', appUrl);
+            checkAuth(); // Esta función (el destornillador) ya existe.
+            embedAppSheet('app-iframe', appUrl); // Esta función (el martillo) ya existe.
         });
     </script>
 </head>
