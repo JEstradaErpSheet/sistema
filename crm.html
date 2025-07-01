@@ -1,31 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Sistema CITFSA</title>
     
-    <!-- PASO 1: Traemos las herramientas básicas de Supabase -->
+    <!-- ORDEN DE CARGA CORRECTO Y GARANTIZADO -->
+    <!-- 1. Cargar la librería externa de Supabase PRIMERO -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- PASO 2: Abrimos NUESTRA caja de herramientas (auth.js). -->
-    <!-- Al quitar 'defer', le decimos al navegador: "¡Abre esta caja AHORA MISMO, es urgente!". -->
+    <!-- 2. Cargar NUESTRO script de autenticación (js/auth.js) DESPUÉS. -->
     <script src="js/auth.js"></script>
     
+    <!-- 3. Cargar nuestra hoja de estilos -->
     <link rel="stylesheet" href="css/style.css">
 
-    <!-- PASO 3: Y SOLO AHORA, que estamos 100% seguros de que la caja está abierta... -->
+    <!-- 4. Finalmente, ejecutar el script específico de esta página -->
     <script>
-        // ...empezamos a dar las instrucciones que usan las herramientas.
+        // Espera a que todo el contenido de la página esté listo
         document.addEventListener('DOMContentLoaded', () => {
-            checkAuth(); // Esta función (el destornillador) ya existe.
-            embedAppSheet('app-iframe', appUrl); // Esta función (el martillo) ya existe.
+            
+            // Llama a la función de seguridad desde auth.js. Esto protege la página.
+            checkAuth();
+            
+            // ¡¡¡AQUÍ ESTÁ LA PIEZA QUE FALTABA!!!
+            // Definimos la URL de la app para este módulo.
+            const appUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
+            
+            // Ahora que appUrl existe, llamamos a la función que carga el iframe.
+            embedAppSheet('app-iframe', appUrl);
         });
     </script>
 </head>
 
 <body>
-    <!-- =============================================================== -->
-    <!-- El cuerpo del documento (BODY) ya estaba bien -->
-    <!-- =============================================================== -->
     <div class="page-container">
         
         <header class="main-header">
