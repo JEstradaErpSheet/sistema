@@ -9,39 +9,18 @@
     <link rel="stylesheet" href="css/style.css">
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            checkAuth();
+            checkAuth(); // Protegemos esta página
             const appUrl = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67';
             const iframe = document.getElementById('app-iframe');
             if (iframe) {
-                const embedUrl = `${appUrl}&embed=true`; 
-                iframe.src = embedUrl;
-                console.log("URL del iframe establecida (modo público):", embedUrl);
+                iframe.src = `${appUrl}&embed=true`; 
             }
         });
     </script>
 </head>
 <body>
     <div class="page-container">
-        <header class="main-header">
-            <div class="header-logo">
-                <a href="home.html" class="home-link">Sistema CITFSA</a>
-            </div>
-            <nav class="module-nav">
-                <a href="crm.html">CRM</a>
-                <a href="contabilidad.html">Contabilidad</a>
-                <a href="ventas.html">Ventas</a>
-                <a href="compra.html">Compras</a>
-                <a href="inventarios.html">Inventarios</a>
-                <a href="proyectos.html">Proyectos</a>
-                <a href="nominas.html">Nóminas</a>
-                <a href="activo.html">Activo</a>
-                <a href="presupuesto.html">Presupuesto</a>
-                <a href="dms.html">Documentos</a>
-            </nav>
-            <div class="header-user">
-                <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
-            </div>
-        </header>
+        <!-- ... tu header ... -->
         <main class="iframe-content">
             <iframe id="app-iframe" frameborder="0"></iframe>
         </main>
