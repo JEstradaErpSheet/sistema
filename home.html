@@ -4,57 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Principal - Sistema CITFSA</title>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="auth.js"></script>
     <link rel="stylesheet" href="css/style.css">
-
-    <!-- Script Final para la Página Principal Dinámica -->
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // 1. Proteger la página. Si no hay sesión, nos expulsa.
             await checkAuth();
-
-            // 2. Recuperar el perfil seleccionado del almacenamiento del navegador.
-            const userProfileString = localStorage.getItem('userProfile');
-            if (!userProfileString) {
-                // Si, por alguna razón, llegamos aquí sin un perfil,
-                // enviamos al usuario a que elija uno.
-                window.location.href = '/select-profile.html';
-                return; // Detiene la ejecución del script.
-            }
-
-            // Convertimos el texto del perfil de vuelta a un objeto JavaScript
-            const userProfile = JSON.parse(userProfileString);
-
-            // 3. Personalizar el saludo de bienvenida.
-            const welcomeElement = document.getElementById('welcome-message');
-            if (welcomeElement) {
-                // Usamos el 'user_name' que guardamos en el perfil. ¡Ya no es el email!
-                welcomeElement.textContent = `Bienvenido, ${userProfile.user_name}`;
-            }
-
-            // 4. Obtener y mostrar los módulos permitidos.
+            initializeHomePage();
+            const userProfile = JSON.parse(localStorage.getItem('userProfile'));
+            if (!userProfile) { window.location.href = '/select-profile.html'; return; }
             const appGrid = document.querySelector('.app-grid');
             if (appGrid) {
-                // Llamamos a nuestra nueva función SQL, pasándole el ID del rol del perfil seleccionado.
                 const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules', { user_role_id: userProfile.role_id });
-                
-                if (error) {
-                    appGrid.innerHTML = '<p class="error">No se pudieron cargar los módulos.</p>';
-                    return;
-                }
-
+                if (error) { appGrid.innerHTML = '<p class="error">No se pudieron cargar los módulos.</p>'; return; }
                 if (modules && modules.length > 0) {
-                    appGrid.innerHTML = ''; // Limpiamos cualquier contenido de ejemplo.
-                    // Creamos una tarjeta HTML por cada módulo que la base de datos nos devolvió.
+                    appGrid.innerHTML = '';
                     modules.forEach(module => {
-                        appGrid.innerHTML += `
-                            <a href="${module.page_url}" class="app-card">
-                                <img src="${module.icon_url}" alt="Icono de ${module.module_name}">
-                                <span>${module.module_name}</span>
-                            </a>
-                        `;
+                        appGrid.innerHTML += `<a href="${module.page_url}" class="app-card"><img src="${module.icon_url}" alt="${module.module_name}"><span>${module.module_name}</span></a>`;
                     });
                 } else {
                     appGrid.innerHTML = '<p>No tienes módulos asignados para este perfil.</p>';
@@ -66,29 +32,14 @@
 <body>
     <div class="main-container">
         <header class="main-header">
-            <div class="header-logo">
-                <!-- Este enlace ahora te permite volver a la selección de perfil -->
-                <a href="select-profile.html" class="home-link">Sistema CITFSA</a>
-            </div>
-            <div class="header-user">
-                <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
-            </div>
+            <div class="header-logo"><a href="/select-profile.html" class="home-link">Sistema CITFSA (Cambiar Perfil)</a></div>
+            <div class="header-user"><button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button></div>
         </header>
-
         <main class="content-area">
-            
-            <!-- El saludo se insertará aquí -->
             <h2 id="welcome-message" class="welcome-heading"></h2>
-
-            <!-- Este contenedor se llenará dinámicamente con los módulos permitidos -->
-            <nav class="app-grid">
-                <p>Cargando módulos...</p>
-            </nav>
+            <nav class="app-grid"><p>Cargando módulos...</p></nav>
         </main>
-
-        <footer class="main-footer">
-            <p>© 2025 CITFSA. Todos los derechos reservados.</p>
-        </footer>
+        <footer class="main-footer"><p>© 2025 CITFSA. Todos los derechos reservados.</p></footer>
     </div>
 </body>
 </html>
