@@ -5,22 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Principal - Sistema CITFSA</title>
     
-    <!-- Scripts en el orden correcto y con la ruta correcta -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="auth.js"></script>
     <link rel="stylesheet" href="css/style.css">
 
-    <!-- =============================================================== -->
-    <!-- Script Final para la Página Principal -->
-    <!-- =============================================================== -->
+    <!-- Script Final para la Página Principal Dinámica -->
     <script>
-        // Cuando el contenido de la página esté listo...
-        document.addEventListener('DOMContentLoaded', () => {
-            // ...primero, asegura la página.
-            checkAuth();
-            
-            // ...y después, ejecuta las funciones específicas de esta página (como el saludo).
-            initializeHomePage(); 
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Proteger la página. Si no hay sesión, nos expulsa.
+            await checkAuth();
+
+            // 2. Recuperar el perfil seleccionado del almacenamiento del navegador.
+            const userProfileString = localStorage.getItem('userProfile');
+            if (!userProfileString) {
+                // Si, por alguna razón, llegamos aquí sin un perfil,
+                // enviamos al usuario a que elija uno.
+                window.location.href = '/select-profile.html';
+                return; // Detiene la ejecución del script.
+            }
+
+            // Convertimos el texto del perfil de vuelta a un objeto JavaScript
+            const userProfile = JSON.parse(userProfileString);
+
+            // 3. Personalizar el saludo de bienvenida.
+            const welcomeElement = document.getElementById('welcome-message');
+            if (welcomeElement) {
+                // Usamos el 'user_name' que guardamos en el perfil. ¡Ya no es el email!
+                welcomeElement.textContent = `Bienvenido, ${userProfile.user_name}`;
+            }
+
+            // 4. Obtener y mostrar los módulos permitidos.
+            const appGrid = document.querySelector('.app-grid');
+            if (appGrid) {
+                // Llamamos a nuestra nueva función SQL, pasándole el ID del rol del perfil seleccionado.
+                const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules', { user_role_id: userProfile.role_id });
+                
+                if (error) {
+                    appGrid.innerHTML = '<p class="error">No se pudieron cargar los módulos.</p>';
+                    return;
+                }
+
+                if (modules && modules.length > 0) {
+                    appGrid.innerHTML = ''; // Limpiamos cualquier contenido de ejemplo.
+                    // Creamos una tarjeta HTML por cada módulo que la base de datos nos devolvió.
+                    modules.forEach(module => {
+                        appGrid.innerHTML += `
+                            <a href="${module.page_url}" class="app-card">
+                                <img src="${module.icon_url}" alt="Icono de ${module.module_name}">
+                                <span>${module.module_name}</span>
+                            </a>
+                        `;
+                    });
+                } else {
+                    appGrid.innerHTML = '<p>No tienes módulos asignados para este perfil.</p>';
+                }
+            }
         });
     </script>
 </head>
@@ -28,7 +67,8 @@
     <div class="main-container">
         <header class="main-header">
             <div class="header-logo">
-                <span>Sistema CITFSA</span>
+                <!-- Este enlace ahora te permite volver a la selección de perfil -->
+                <a href="select-profile.html" class="home-link">Sistema CITFSA</a>
             </div>
             <div class="header-user">
                 <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
@@ -37,60 +77,12 @@
 
         <main class="content-area">
             
-            <!-- Elemento para el mensaje de bienvenida personalizado -->
+            <!-- El saludo se insertará aquí -->
             <h2 id="welcome-message" class="welcome-heading"></h2>
 
+            <!-- Este contenedor se llenará dinámicamente con los módulos permitidos -->
             <nav class="app-grid">
-                <!-- Tarjeta para CRM -->
-                <a href="crm.html" class="app-card">
-                    <img src="img/CRM.png" alt="Icono de CRM">
-                    <span>CRM</span>
-                </a>
-                <!-- Tarjeta para Contabilidad -->
-                <a href="contabilidad.html" class="app-card">
-                    <img src="img/Contabilidad.png" alt="Icono de Contabilidad">
-                    <span>Contabilidad</span>
-                </a>
-                <!-- Tarjeta para Ventas -->
-                <a href="ventas.html" class="app-card">
-                    <img src="img/Ventas.png" alt="Icono de Ventas">
-                    <span>Ventas</span>
-                </a>
-                <!-- Tarjeta para Compras -->
-                <a href="compra.html" class="app-card">
-                    <img src="img/Compras.png" alt="Icono de Compras">
-                    <span>Compras</span>
-                </a>
-                <!-- Tarjeta para Inventarios -->
-                <a href="inventarios.html" class="app-card">
-                    <img src="img/Inventarios.png" alt="Icono de Inventarios">
-                    <span>Inventarios</span>
-                </a>
-                <!-- Tarjeta para Proyectos -->
-                <a href="proyectos.html" class="app-card">
-                    <img src="img/Proyectos.png" alt="Icono de Proyectos">
-                    <span>Proyectos</span>
-                </a>
-                <!-- Tarjeta para Nóminas -->
-                <a href="nominas.html" class="app-card">
-                    <img src="img/Nominas.png" alt="Icono de Nóminas">
-                    <span>Nóminas</span>
-                </a>
-                <!-- Tarjeta para Activos -->
-                <a href="activo.html" class="app-card">
-                    <img src="img/Activo.png" alt="Icono de Activos">
-                    <span>Activos</span>
-                </a>
-                <!-- Tarjeta para Presupuestos -->
-                <a href="presupuesto.html" class="app-card">
-                    <img src="img/Presupuestos.png" alt="Icono de Presupuestos">
-                    <span>Presupuestos</span>
-                </a>
-                <!-- Tarjeta para Documentos -->
-                <a href="dms.html" class="app-card">
-                    <img src="img/Documento.png" alt="Icono de DMS">
-                    <span>Documentos</span>
-                </a>
+                <p>Cargando módulos...</p>
             </nav>
         </main>
 
