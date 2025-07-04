@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- (El head no cambia, puedes mantener el tuyo) -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seleccionar Perfil - Sistema CITFSA</title>
@@ -55,21 +56,41 @@
             profiles.forEach(profile => {
                 const button = document.createElement('button');
                 button.className = 'profile-select-button';
-                button.textContent = `${profile.user_name}(${profile.company_name})`;
+                button.textContent = `${profile.user_name} en ${profile.company_name}`; // Corregido
                 button.onclick = () => showPasswordModal(profile);
                 profileContainer.appendChild(button);
             });
+            
+            // --- LÓGICA DE VERIFICACIÓN CORREGIDA ---
             document.getElementById('password-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const passwordInput = document.getElementById('profile-password');
                 const errorP = document.getElementById('password-error');
                 errorP.textContent = 'Verificando...';
+                
                 try {
+                    // Invocamos la función
                     const { data, error } = await supabaseClient.functions.invoke('verify-profile-password', { body: { profile_id: selectedProfile.profile_id, password_attempt: passwordInput.value } });
+
+                    // Si hay un error de red o un 500, el bloque CATCH lo manejará
                     if (error) throw error;
-                    if (data.success === true) { localStorage.setItem('userProfile', JSON.stringify(selectedProfile)); window.location.href = '/home.html'; } else { errorP.textContent = 'Contraseña incorrecta. Inténtalo de nuevo.'; }
-                } catch (err) { errorP.textContent = 'Error: ' + (err.message || 'No se pudo verificar.'); }
+                    
+                    // Si la llamada fue exitosa (200 OK), ahora miramos el contenido de 'data'
+                    if (data.success === true) {
+                        // ¡Éxito! Contraseña correcta.
+                        localStorage.setItem('userProfile', JSON.stringify(selectedProfile));
+                        window.location.href = '/home.html';
+                    } else {
+                        // La contraseña es incorrecta, pero la llamada fue exitosa.
+                        // Mostramos el mensaje amigable que nos envía la función.
+                        errorP.textContent = data.message || 'Contraseña incorrecta.';
+                    }
+                } catch (err) {
+                    // Este bloque ahora solo se activa para errores reales de red o del servidor.
+                    errorP.textContent = 'Error de conexión. Por favor, inténtelo de nuevo más tarde.';
+                }
             });
+            
             document.getElementById('toggle-password').addEventListener('click', () => {
                 const passwordInput = document.getElementById('profile-password');
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
