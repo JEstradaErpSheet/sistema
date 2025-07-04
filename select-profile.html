@@ -34,7 +34,7 @@
             profiles.forEach(profile => {
                 const button = document.createElement('button');
                 button.className = 'profile-select-button';
-                button.textContent = `${profile.user_name} en ${profile.company_name}`;
+                button.textContent = `${profile.company_name}`;
                 
                 button.onclick = () => {
                     // Al hacer clic, guardamos TODO el objeto del perfil en el navegador
@@ -57,7 +57,7 @@
 <body>
     <div class="profile-select-container">
         <h2>Selecciona tu Perfil de Trabajo</h2>
-        <p>Elige con qué empresa y usuario quieres operar en esta sesión.</p>
+        <p>Elige con qué empresa quieres operar en esta sesión.</p>
         <p id="loading-message">Buscando tus perfiles...</p>
         <div id="profile-container">
             <!-- Los botones de selección de perfil se crearán aquí con JavaScript -->
