@@ -1,43 +1,60 @@
-// auth.js - Lógica de Autenticación Principal
+// auth.js - VERSIÓN DE DEPURACIÓN DETALLADA
 
 const supabaseUrl = 'https://vqdgrzrxnqrgkafuwppy.supabase.co';
-// ¡IMPORTANTE! Reemplaza esto con tu clave pública (anon key) si es diferente
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZGdyenJ4bnFyZ2thZnV3cHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODU5NDQ5NjEsImV4cCI6MjAwMTUyMDk2MX0.l6Ex-94p-7m3iI4sLF6H13B4w1a_8G22h5z4u_vINZk';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+console.log('[DEBUG] Supabase Client inicializado.');
 
 async function signInWithGoogle() {
-  const errorP = document.getElementById('error-message');
-  if(errorP) errorP.textContent = '';
+  console.log('[DEBUG] Se hizo clic en signInWithGoogle. Redirigiendo a Google...');
   await supabaseClient.auth.signInWithOAuth({ provider: 'google' });
 }
 
 async function handleLogout() {
+  console.log('[DEBUG] Ejecutando handleLogout...');
   localStorage.removeItem('selectedProfile');
   await supabaseClient.auth.signOut();
+  console.log('[DEBUG] Sesión cerrada. Redirigiendo a /');
   window.location.href = '/'; 
 }
 
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  console.log(`%c[DEBUG] onAuthStateChange disparado. Evento: ${event}`, 'color: blue; font-weight: bold;');
+
+  // Primero, verificamos si hay sesión para ver los datos
+  if (session) {
+    console.log('[DEBUG] Hay una sesión activa. Detalles del usuario:', session.user);
+  } else {
+    console.log('[DEBUG] No hay sesión activa.');
+  }
+
+  // Ahora, manejamos el evento específico
   if (event === "SIGNED_IN" && session) {
-    console.log("Evento SIGNED_IN detectado. Verificando email...");
+    console.log('[DEBUG] El evento es SIGNED_IN. Procediendo a verificar el email.');
     const userEmail = session.user.email;
-    const { data: emailExists, error } = await supabaseClient.rpc('erp_sistema.verificar_email_registrado', { p_email: userEmail });
+    console.log(`[DEBUG] Email obtenido de la sesión: ${userEmail}`);
+
+    console.log('[DEBUG] Llamando a la función RPC "erp_sistema.verificar_email_registrado"...');
+    const { data: emailExists, error } = await supabaseClient.rpc('erp_sistema.verificar_email_registrado', {
+      p_email: userEmail
+    });
 
     if (error) {
-      console.error("Error al verificar email:", error);
-      alert("Ocurrió un error al verificar tu cuenta. Contacta a soporte.");
+      console.error('%c[DEBUG] ¡ERROR en la llamada RPC!', 'color: red; font-weight: bold;', error);
+      alert("Ocurrió un error CRÍTICO al verificar tu cuenta. Revisa la consola.");
       handleLogout();
       return;
     }
 
-    if (emailExists) {
+    console.log(`[DEBUG] Resultado de la función RPC: emailExists = ${emailExists}`);
+
+    if (emailExists === true) {
+      console.log('%c[DEBUG] ¡ÉXITO! El email existe. Redirigiendo a /select-profile.html', 'color: green; font-weight: bold;');
       window.location.href = '/select-profile.html';
     } else {
+      console.warn('%c[DEBUG] ADVERTENCIA: El email NO existe en la base de datos. Cerrando sesión.', 'color: orange; font-weight: bold;');
       alert("Tu cuenta de Google no está autorizada para acceder a este sistema.");
       handleLogout();
     }
-  } else if (event === "SIGNED_OUT") {
-    localStorage.removeItem('selectedProfile');
-    window.location.href = '/';
   }
 });
