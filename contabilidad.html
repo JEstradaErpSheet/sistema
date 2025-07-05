@@ -1,15 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <title>Prueba de Botón</title>
-    <!-- Cargamos nuestro script de prueba -->
-    <script src="test_script.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Sistema CITFSA</title>
+    
+    <!-- Scripts requeridos en el orden correcto -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Script específico de la página -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Asegura la página
+            checkAuth();
+            
+            // 2. Carga el iframe de AppSheet de forma directa
+            const iframe = document.getElementById('app-iframe');
+            if (iframe) {
+                // ¡¡¡CAMBIA ESTA URL PARA CADA MÓDULO!!!
+                iframe.src = 'https://www.appsheet.com/start/26281ed0-aacd-4c2a-bbda-cb0d40c4fa0e?&embed=true';
+            }
+        });
+    </script>
 </head>
 <body>
-    <h1>Página de Diagnóstico</h1>
-    <p>Si el botón de abajo muestra una alerta, la conexión entre HTML y JavaScript funciona.</p>
-    
-    <!-- Este botón llama a una función definida en el otro archivo -->
-    <button onclick="testAlert()">Hacer Clic Aquí</button>
+    <div class="page-container">
+        
+        <!-- =============================================================== -->
+        <!-- ESTE ES EL HEADER COMPLETO CON LA NAVEGACIÓN RESTAURADA -->
+        <!-- =============================================================== -->
+        <header class="main-header">
+            <!-- Logo y enlace para volver al Panel Principal -->
+            <div class="header-logo">
+                <a href="home.html" class="home-link">Volver al Panel</a>
+            </div>
+            
+            <!-- Navegación directa entre los Módulos -->
+            <nav class="module-nav">
+                <a href="crm.html">CRM</a>
+                <a href="contabilidad.html">Contabilidad</a>
+                <a href="ventas.html">Ventas</a>
+                <a href="compra.html">Compras</a>
+                <a href="inventarios.html">Inventarios</a>
+                <a href="proyectos.html">Proyectos</a>
+                <a href="nominas.html">Nóminas</a>
+                <a href="activo.html">Activo</a>
+                <a href="presupuesto.html">Presupuesto</a>
+                <a href="dms.html">Documentos</a>
+                <a href="Planificador.html">Agenda</a>
+            </nav>
+
+            <!-- Botón de Cerrar Sesión a la derecha -->
+            <div class="header-user">
+                <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <!-- Contenido principal con el iframe -->
+        <main class="iframe-content">
+            <iframe id="app-iframe" frameborder="0"></iframe>
+        </main>
+        
+    </div>
 </body>
 </html>
