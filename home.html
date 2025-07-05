@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -43,3 +44,50 @@
     </div>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Principal - Sistema CITFSA</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
+            initializeHomePage();
+            const userProfile = JSON.parse(localStorage.getItem('userProfile'));
+            if (!userProfile) { window.location.href = '/select-profile.html'; return; }
+            const appGrid = document.querySelector('.app-grid');
+            if (appGrid) {
+                const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules', { user_role_id: userProfile.role_id });
+                if (error) { appGrid.innerHTML = '<p class="error">No se pudieron cargar los módulos.</p>'; return; }
+                if (modules && modules.length > 0) {
+                    appGrid.innerHTML = '';
+                    modules.forEach(module => {
+                        appGrid.innerHTML += `<a href="${module.page_url}" class="app-card"><img src="${module.icon_url}" alt="${module.module_name}"><span>${module.module_name}</span></a>`;
+                    });
+                } else {
+                    appGrid.innerHTML = '<p>No tienes módulos asignados para este perfil.</p>';
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="main-container">
+        <header class="main-header">
+            <div class="header-logo"><a href="/select-profile.html" class="home-link">Sistema CITFSA (Cambiar Perfil)</a></div>
+            <div class="header-user"><button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button></div>
+        </header>
+        <main class="content-area">
+            <h2 id="welcome-message" class="welcome-heading"></h2>
+            <nav class="app-grid"><p>Cargando módulos...</p></nav>
+        </main>
+        <footer class="main-footer"><p>© 2025 CITFSA. Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
+>>>>>>> 569182c3d47db4b9d6441ca425f0c94d88d485dc
