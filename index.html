@@ -16,7 +16,7 @@
           supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session) {
               try {
-                const { data: isAllowed, error } = await supabaseClient.rpc('is_user_allowed', { user_email: session.user.email });
+                const { data: isAllowed, error } = await supabaseClient.rpc('erp_sistema.is_user_allowed', { user_email: session.user.email });
                 if (error) throw error;
                 if (isAllowed === true) {
                   window.location.href = '/select-profile.html';
