@@ -1,4 +1,4 @@
-// select-profile-logic.js - VERSIÓN SIMPLIFICADA
+// select-profile-logic.js - VERSIÓN FINAL AJUSTADA
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('[PROFILE_LOGIC] La página ha cargado. Iniciando lógica de perfiles.');
@@ -8,12 +8,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (!sessionString) {
         console.error('[PROFILE_LOGIC] No se encontró la sesión en localStorage. Redirigiendo.');
-        // Si no hay sesión, algo muy raro pasó. Lo mandamos al inicio.
         window.location.href = '/';
         return;
     }
 
-    // Convertimos el string de vuelta a un objeto
     const session = JSON.parse(sessionString);
     const userEmail = session.user.email;
     console.log(`[PROFILE_LOGIC] Sesión leída de localStorage. Usuario: ${userEmail}`);
@@ -26,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     if (error) {
-        console.error('%c[PROFILE_LOGIC] ¡ERROR en la llamada RPC!', 'color: red; font-weight: bold;', error);
+        console.error('%c[PROFILE_LOGIC] ¡ERROR en la llamada RPC para obtener perfiles!', 'color: red; font-weight: bold;', error);
         profilesContainer.innerHTML = '<p class="error-text">Error crítico al cargar los perfiles. Revisa la consola.</p>';
         return;
     }
@@ -53,7 +51,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-// La función promptForPassword sigue igual por ahora
+/**
+ * Muestra un modal para que el usuario ingrese la contraseña de su perfil.
+ * @param {object} profile - El objeto de perfil seleccionado.
+ */
 function promptForPassword(profile) {
-    // ... (código sin cambios)
+    const modal = document.getElementById('password-modal');
+    const title = document.getElementById('password-prompt-title');
+    const passwordInput = document.getElementById('password-input');
+    const submitBtn = document.getElementById('password-submit-btn');
+    
+    title.textContent = `Contraseña para ${profile.usuario}`;
+    passwordInput.value = '';
+    modal.style.display = 'block'; // Mostramos el modal
+
+    submitBtn.onclick = async () => {
+        const password = passwordInput.value;
+        if (!password) {
+            alert('Por favor, ingresa una contraseña.');
+            return;
+        }
+
+        console.log(`[PROFILE_LOGIC] Verificando contraseña para el usuario ID: ${profile.id_usuario}`);
+        
+        // ¡CAMBIO IMPORTANTE! Usamos el nuevo nombre de la función: verificar_contrasena_citfsa
+        const { data: isValid, error } = await supabaseClient.rpc('verificar_contrasena_citfsa', {
+            p_id_usuario: profile.id_usuario,
+            p_contrasena: password
+        });
+
+        if (error) {
+            console.error('%c[PROFILE_LOGIC] ¡ERROR en la llamada RPC para verificar contraseña!', 'color: red; font-weight: bold;', error);
+            alert('Ocurrió un error al verificar la contraseña. Inténtalo de nuevo.');
+            return;
+        }
+
+        if (isValid) {
+            console.log('%c[PROFILE_LOGIC] ¡Contraseña correcta! Redirigiendo a home.html...', 'color: green; font-weight: bold;');
+            // Guardamos el perfil seleccionado para usarlo en la página principal
+            localStorage.setItem('selectedProfile', JSON.stringify(profile));
+            window.location.href = '/home.html';
+        } else {
+            console.warn('[PROFILE_LOGIC] Contraseña incorrecta.');
+            alert('Contraseña incorrecta.');
+            passwordInput.focus(); // Ponemos el foco de nuevo en el campo de contraseña
+        }
+    };
 }
