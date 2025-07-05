@@ -49,7 +49,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     console.log(`[DEBUG] Resultado de la función RPC: emailExists = ${emailExists}`);
 
     if (emailExists === true) {
-      console.log('%c[DEBUG] ¡ÉXITO! El email existe. Redirigiendo a /select-profile.html', 'color: green; font-weight: bold;');
+      console.log('%c[DEBUG] ¡ÉXITO! El email existe. Guardando sesión y redirigiendo...', 'color: green; font-weight: bold;');
       window.location.href = '/select-profile.html';
     } else {
       console.warn('%c[DEBUG] ADVERTENCIA: El email NO existe en la base de datos. Cerrando sesión.', 'color: orange; font-weight: bold;');
