@@ -34,8 +34,8 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     const userEmail = session.user.email;
     console.log(`[DEBUG] Email obtenido de la sesión: ${userEmail}`);
 
-    console.log('[DEBUG] Llamando a la función RPC "erp_sistema.verificar_email_registrado"...');
-    const { data: emailExists, error } = await supabaseClient.rpc('erp_sistema.verificar_email_registrado', {
+    console.log('[DEBUG] Llamando a la función RPC "verificar_email_citfsa"...');
+    const { data: emailExists, error } = await supabaseClient.rpc('verificar_email_citfsa', {
       p_email: userEmail
     });
 
