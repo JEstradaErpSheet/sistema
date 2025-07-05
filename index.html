@@ -16,7 +16,8 @@
           supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session) {
               try {
-                const { data: isAllowed, error } = await supabaseClient.rpc('erp_sistema.is_user_allowed', { user_email: session.user.email });
+                console.log("EJECUTANDO PRUEBA: Llamando a la función de test...");
+                const { data: isAllowed, error } = await supabaseClient.rpc('erp_sistema.test_check_permission', {});
                 if (error) throw error;
                 if (isAllowed === true) {
                   window.location.href = '/select-profile.html';
