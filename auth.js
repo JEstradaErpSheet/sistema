@@ -1,7 +1,7 @@
 // auth.js - VERSIÓN DE DEPURACIÓN DETALLADA
 
 const supabaseUrl = 'https://vqdgrzrxnqrgkafuwppy.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZGdyenJ4bnFyZ2thZnV3cHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODU5NDQ5NjEsImV4cCI6MjAwMTUyMDk2MX0.l6Ex-94p-7m3iI4sLF6H13B4w1a_8G22h5z4u_vINZk';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZGdyenJ4bnFyZ2thZnV3cHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE3NDg0MDcsImV4cCI6MjA2NzMyNDQwN30.6rmS5bhQO49DhTXFCMWtdtDSH_WOvKOxiT__1Hvwkr0';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 console.log('[DEBUG] Supabase Client inicializado.');
 
