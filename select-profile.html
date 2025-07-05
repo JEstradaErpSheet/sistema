@@ -49,7 +49,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = '/'; return; }
-            const { data: profiles, error } = await supabaseClient.rpc('erp_sistema.get_user_profiles', { user_email: session.user.email });
+            const { data: profiles, error } = await supabaseClient.rpc('get_user_profiles', { user_email: session.user.email });
             document.getElementById('loading-message').style.display = 'none';
             if (error || !profiles || profiles.length === 0) { document.getElementById('profile-container').innerHTML = '<p class="error">No se encontraron perfiles. Contacte al administrador.</p>'; setTimeout(handleLogout, 4000); return; }
             const profileContainer = document.getElementById('profile-container');
