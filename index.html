@@ -1,97 +1,23 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Sistema CITFSA</title>
+    <!-- Carga de la librería de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="auth.js"></script>
+    <!-- Carga de nuestro archivo de lógica de autenticación -->
+    <script src="auth.js" defer></script>
+    <!-- Enlace a tu hoja de estilos (opcional) -->
     <link rel="stylesheet" href="css/style.css">
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-          const googleButton = document.getElementById('google-login-button');
-          if (googleButton) {
-            googleButton.addEventListener('click', signInWithGoogle);
-          }
-          supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-              try {
-                console.log("EJECUTANDO PRUEBA: Llamando a la función de test...");
-                const { data: isAllowed, error } = await supabaseClient.rpc('erp_sistema.test_check_permission', {});
-                if (error) throw error;
-                if (isAllowed === true) {
-                  window.location.href = '/select-profile.html';
-                } else {
-                  await handleLogout();
-                  alert('Acceso denegado. Este usuario no está autorizado.');
-                }
-              } catch (err) {
-                  await handleLogout();
-                  alert('Ocurrió un error al verificar sus permisos.');
-              }
-            }
-          });
-        });
-    </script>
 </head>
 <body>
     <div class="login-container">
-        <h2>Acceso al Sistema</h2>
+        <h1>Acceso al Sistema</h1>
         <p>Por favor, inicia sesión con tu cuenta de Google autorizada.</p>
-        <button id="google-login-button" class="google-btn">
-            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
-            <span>Iniciar sesión con Google</span>
-        </button>
+        <!-- Este botón llamará a la función de auth.js -->
+        <button id="google-login-btn" onclick="signInWithGoogle()">Iniciar sesión con Google</button>
+        <p id="error-message" class="error-text"></p>
     </div>
 </body>
 </html>
-=======
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - Sistema CITFSA</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="auth.js"></script>
-    <link rel="stylesheet" href="css/style.css">
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-          const googleButton = document.getElementById('google-login-button');
-          if (googleButton) {
-            googleButton.addEventListener('click', signInWithGoogle);
-          }
-          supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-              try {
-                console.log("EJECUTANDO PRUEBA: Llamando a la función de test...");
-                const { data: isAllowed, error } = await supabaseClient.rpc('erp_sistema.test_check_permission', {});
-                if (error) throw error;
-                if (isAllowed === true) {
-                  window.location.href = '/select-profile.html';
-                } else {
-                  await handleLogout();
-                  alert('Acceso denegado. Este usuario no está autorizado.');
-                }
-              } catch (err) {
-                  await handleLogout();
-                  alert('Ocurrió un error al verificar sus permisos.');
-              }
-            }
-          });
-        });
-    </script>
-</head>
-<body>
-    <div class="login-container">
-        <h2>Acceso al Sistema</h2>
-        <p>Por favor, inicia sesión con tu cuenta de Google autorizada.</p>
-        <button id="google-login-button" class="google-btn">
-            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
-            <span>Iniciar sesión con Google</span>
-        </button>
-    </div>
-</body>
-</html>
->>>>>>> 569182c3d47db4b9d6441ca425f0c94d88d485dc

@@ -1,106 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- (El head no cambia, puedes mantener el tuyo) -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seleccionar Perfil - Sistema CITFSA</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="auth.js"></script>
+    <script src="auth.js" defer></script>
+    <!-- Este script es ESPECÍFICO para esta página -->
+    <script src="select-profile-logic.js" defer></script>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .profile-select-container { max-width: 500px; margin: 100px auto; padding: 20px; background: white; border-radius: 8px; text-align: center; }
-        .profile-select-button { display: block; width: 100%; padding: 15px; margin-bottom: 10px; font-size: 16px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background-color: #f7f7f7; }
-        .profile-select-button:hover { background-color: #e9e9e9; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; border-radius: 8px; }
-        .password-input-container { position: relative; }
-        #profile-password { width: calc(100% - 40px); padding: 10px; }
-        #toggle-password { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); cursor: pointer; border: none; background: none; font-size: 20px; }
-        .error { color: red; }
-    </style>
 </head>
 <body>
-    <div class="profile-select-container">
-        <h2>Selecciona tu Perfil de Trabajo</h2>
-        <p id="loading-message">Buscando tus perfiles...</p>
-        <div id="profile-container"></div>
+    <div class="profile-selection-container">
+        <h1>Selecciona tu Perfil de Trabajo</h1>
+        <!-- Aquí se cargarán los perfiles dinámicamente -->
+        <div id="profiles-container">
+            <p>Cargando perfiles...</p>
+        </div>
+        <p id="error-message" class="error-text"></p>
     </div>
-    <div id="password-modal" class="modal">
+
+    <!-- Este es el modal (ventana emergente) para la contraseña, inicialmente oculto -->
+    <div id="password-modal" class="modal" style="display:none;">
         <div class="modal-content">
-            <h3>Verificar Identidad</h3>
-            <p>Por favor, introduce la contraseña para el perfil seleccionado.</p>
-            <form id="password-form">
-                <div class="password-input-container">
-                    <input type="password" id="profile-password" required>
-                    <button type="button" id="toggle-password">👁️</button>
-                </div>
-                <br><br>
-                <button type="submit">Continuar</button>
-                <button type="button" onclick="closeModal()">Cancelar</button>
-                <p id="password-error" class="error" style="margin-top: 10px;"></p>
-            </form>
+            <h3 id="password-prompt-title"></h3>
+            <input type="password" id="password-input" placeholder="Ingresa tu contraseña de perfil">
+            <button id="password-submit-btn">Verificar</button>
+            <button onclick="document.getElementById('password-modal').style.display='none'">Cancelar</button>
         </div>
     </div>
-    <script>
-        let selectedProfile = null;
-        function showPasswordModal(profile) { selectedProfile = profile; document.getElementById('password-modal').style.display = 'block'; document.getElementById('profile-password').focus(); }
-        function closeModal() { document.getElementById('password-modal').style.display = 'none'; document.getElementById('password-error').textContent = ''; document.getElementById('password-form').reset(); selectedProfile = null; }
-        document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) { window.location.href = '/'; return; }
-            const { data: profiles, error } = await supabaseClient.rpc('erp_sistema.get_user_profiles', { user_email: session.user.email });
-            document.getElementById('loading-message').style.display = 'none';
-            if (error || !profiles || profiles.length === 0) { document.getElementById('profile-container').innerHTML = '<p class="error">No se encontraron perfiles. Contacte al administrador.</p>'; setTimeout(handleLogout, 4000); return; }
-            const profileContainer = document.getElementById('profile-container');
-            profiles.forEach(profile => {
-                const button = document.createElement('button');
-                button.className = 'profile-select-button';
-                button.textContent = `${profile.user_name} en ${profile.company_name}`;
-                button.onclick = () => showPasswordModal(profile);
-                profileContainer.appendChild(button);
-            });
-            
-            // --- LÓGICA DE VERIFICACIÓN FINAL Y CORRECTA ---
-            document.getElementById('password-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const passwordInput = document.getElementById('profile-password');
-                const errorP = document.getElementById('password-error');
-                errorP.textContent = 'Verificando...';
-                
-                // Invocamos la función con la opción 'noThrowOnError'
-                const { data, error } = await supabaseClient.functions.invoke('verify-profile-password', {
-                    body: { profile_id: selectedProfile.profile_id, password_attempt: passwordInput.value },
-                    noThrowOnError: true // ¡¡¡ESTA ES LA LÍNEA MÁGICA!!!
-                });
-
-                if (error) {
-                    // Este bloque ahora SÍ significa un error de conexión real (ej: sin internet)
-                    errorP.textContent = 'Error de conexión. Por favor, inténtelo de nuevo más tarde.';
-                    return;
-                }
-                
-                // Si llegamos aquí, la llamada fue exitosa (aunque la contraseña sea incorrecta)
-                if (data.success === true) {
-                    // ¡Éxito! Contraseña correcta.
-                    localStorage.setItem('userProfile', JSON.stringify(selectedProfile));
-                    window.location.href = '/home.html';
-                } else {
-                    // La contraseña es incorrecta. Mostramos el mensaje amigable.
-                    errorP.textContent = data.message || 'Contraseña incorrecta.';
-                }
-            });
-            
-            document.getElementById('toggle-password').addEventListener('click', () => {
-                const passwordInput = document.getElementById('profile-password');
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-            });
-        });
-    </script>
 </body>
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> 569182c3d47db4b9d6441ca425f0c94d88d485dc
