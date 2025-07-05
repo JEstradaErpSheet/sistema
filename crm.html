@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Sistema CITFSA</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            const iframe = document.getElementById('app-iframe');
+            if (iframe) {
+                iframe.src = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67?&embed=true';
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="page-container">
+        <header class="main-header">
+            <div class="header-logo"><a href="home.html" class="home-link">Volver al Panel</a></div>
+            <div class="header-user"><button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button></div>
+        </header>
+        <main class="iframe-content"><iframe id="app-iframe" frameborder="0"></iframe></main>
+    </div>
+</body>
+</html>
