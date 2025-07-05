@@ -1,78 +1,79 @@
-// select-profile-logic.js
+// select-profile-logic.js - VERSIÓN DE DEPURACIÓN
 
-// Este código se ejecuta solo cuando el HTML de la página está listo
 document.addEventListener('DOMContentLoaded', async () => {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    // Si por alguna razón el usuario llega aquí sin sesión, lo echamos.
-    if (!session) {
+    console.log('[PROFILE_LOGIC] La página ha cargado. Iniciando lógica de perfiles.');
+
+    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+
+    if (sessionError || !session) {
+        console.error('[PROFILE_LOGIC] Error obteniendo la sesión o no hay sesión. Redirigiendo.', sessionError);
         window.location.href = '/';
         return;
     }
 
+    console.log('[PROFILE_LOGIC] Sesión encontrada. Usuario:', session.user.email);
     const userEmail = session.user.email;
     const profilesContainer = document.getElementById('profiles-container');
     
-    // Llamamos a la función SQL para obtener los perfiles asociados al email
-    const { data: profiles, error } = await supabaseClient.rpc('erp_sistema.obtener_perfiles_por_email', {
+    console.log('[PROFILE_LOGIC] Llamando a la función RPC "obtener_perfiles_citfsa"...');
+    const { data: profiles, error } = await supabaseClient.rpc('obtener_perfiles_citfsa', {
         p_email: userEmail
     });
 
-    if (error || !profiles) {
-        profilesContainer.innerHTML = '<p class="error-text">Error al cargar los perfiles.</p>';
+    if (error) {
+        console.error('%c[PROFILE_LOGIC] ¡ERROR en la llamada RPC!', 'color: red; font-weight: bold;', error);
+        profilesContainer.innerHTML = '<p class="error-text">Error crítico al cargar los perfiles. Revisa la consola.</p>';
         return;
     }
 
-    if (profiles.length === 0) {
-        profilesContainer.innerHTML = '<p>No se encontraron perfiles para tu cuenta.</p>';
+    console.log('[PROFILE_LOGIC] Llamada RPC exitosa. Perfiles recibidos:', profiles);
+
+    if (!profiles || profiles.length === 0) {
+        console.warn('[PROFILE_LOGIC] La función devolvió 0 perfiles o nulo.');
+        profilesContainer.innerHTML = '<p>No se encontraron perfiles asociados a tu cuenta de Google.</p>';
         return;
     }
 
-    profilesContainer.innerHTML = ''; // Limpiamos el mensaje "Cargando..."
+    console.log(`%c[PROFILE_LOGIC] ¡ÉXITO! Se encontraron ${profiles.length} perfiles. Creando botones...`, 'color: green; font-weight: bold;');
+    profilesContainer.innerHTML = ''; // Limpiamos "Cargando..."
 
-    // Creamos un botón por cada perfil encontrado
     profiles.forEach(profile => {
         const button = document.createElement('button');
-        // Usamos la columna 'usuario' que definiste en tu función SQL
-        button.textContent = profile.usuario; 
+        button.textContent = profile.usuario;
         button.className = 'profile-button';
         button.onclick = () => {
-            // Al hacer clic, mostramos el modal de la contraseña
             promptForPassword(profile);
         };
         profilesContainer.appendChild(button);
     });
 });
 
+// La función promptForPassword no necesita cambios por ahora.
 function promptForPassword(profile) {
     const modal = document.getElementById('password-modal');
     const title = document.getElementById('password-prompt-title');
     const passwordInput = document.getElementById('password-input');
     const submitBtn = document.getElementById('password-submit-btn');
     
-    // Usamos la columna 'usuario' de nuevo
     title.textContent = `Contraseña para ${profile.usuario}`;
     passwordInput.value = '';
-    modal.style.display = 'block'; // Mostramos el modal
+    modal.style.display = 'block';
 
     submitBtn.onclick = async () => {
+        // ... (esta lógica la depuraremos después si es necesario)
+        // Por ahora, asumimos que llegará aquí correctamente.
         const password = passwordInput.value;
         if (!password) return;
 
-        // Llamamos a la función SQL para verificar la contraseña
-        const { data: isValid, error } = await supabaseClient.rpc('erp_sistema.verificar_contrasena_perfil', {
+        // Aquí también necesitaremos una función RPC para la contraseña
+        // Asegurémonos de que exista o la creamos
+        const { data: isValid, error } = await supabaseClient.rpc('verificar_contrasena_perfil', {
             p_id_usuario: profile.id_usuario,
             p_contrasena: password
         });
-
-        if (error) {
-            alert('Error al verificar la contraseña.');
-            return;
-        }
-
-        if (isValid) {
-            // ¡Éxito! Guardamos el perfil completo en el almacenamiento local del navegador
+        
+        if(isValid){
             localStorage.setItem('selectedProfile', JSON.stringify(profile));
-            // Y lo mandamos a la página principal
             window.location.href = '/home.html';
         } else {
             alert('Contraseña incorrecta.');
