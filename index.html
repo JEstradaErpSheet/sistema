@@ -6,16 +6,18 @@
     <title>Iniciar Sesión - Sistema CITFSA</title>
     <!-- Carga de la librería de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Carga de nuestro archivo de lógica de autenticación -->
+    <!-- Carga de NUESTRA librería central -->
+    <script src="supabase-client.js" defer></script>
+    <!-- Carga del script de redirección -->
     <script src="auth.js" defer></script>
-    <!-- Enlace a tu hoja de estilos (opcional) -->
+    <!-- Enlace a tu hoja de estilos -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="login-container">
         <h1>Acceso al Sistema</h1>
         <p>Por favor, inicia sesión con tu cuenta de Google autorizada.</p>
-        <!-- Este botón llamará a la función de auth.js -->
+        <!-- Este botón llamará a la función de supabase-client.js -->
         <button id="google-login-btn" onclick="signInWithGoogle()">Iniciar sesión con Google</button>
         <p id="error-message" class="error-text"></p>
     </div>
