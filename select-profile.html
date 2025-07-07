@@ -4,30 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seleccionar Perfil - Sistema CITFSA</title>
-    <!-- Carga de la librería de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Carga de NUESTRA librería central -->
     <script src="supabase-client.js" defer></script>
-    <!-- Este script es ESPECÍFICO para esta página -->
     <script src="select-profile-logic.js" defer></script>
-    <!-- Enlace a tu hoja de estilos -->
     <link rel="stylesheet" href="css/style.css">
+    <!-- Estilos adicionales para el ojo de la contraseña -->
+    <style>
+        .password-wrapper { position: relative; }
+        .toggle-password { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; user-select: none; }
+    </style>
 </head>
 <body>
-    <div class="profile-selection-container">
-        <h1>Selecciona tu Perfil de Trabajo</h1>
-        <!-- Aquí se cargarán los perfiles dinámicamente -->
-        <div id="profiles-container">
-            <p>Cargando perfiles...</p>
+    <div class="centered-container">
+        <div class="auth-box">
+            <h1>Selecciona tu Perfil de Trabajo</h1>
+            <div id="profiles-container">
+                <p>Cargando perfiles...</p>
+            </div>
         </div>
-        <p id="error-message" class="error-text"></p>
     </div>
 
-    <!-- Este es el modal (ventana emergente) para la contraseña, inicialmente oculto -->
     <div id="password-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3 id="password-prompt-title"></h3>
-            <input type="password" id="password-input" placeholder="Ingresa tu contraseña de perfil">
+            <div class="password-wrapper">
+                <input type="password" id="password-input" placeholder="Ingresa tu contraseña de perfil">
+                <span id="toggle-password-visibility" class="toggle-password">👁️</span>
+            </div>
+            <p id="error-message" class="error-text"></p>
             <button id="password-submit-btn">Verificar</button>
             <button onclick="document.getElementById('password-modal').style.display='none'">Cancelar</button>
         </div>

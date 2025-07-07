@@ -4,49 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Sistema CITFSA</title>
-    
-    <!-- CARGA DE SCRIPTS ESENCIALES (La Caja de Herramientas) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-client.js" defer></script>
-    
-    <!-- CARGA DE LA LÓGICA DE ESTA PÁGINA (La Cerradura Ligera) -->
     <script src="crm-logic.js" defer></script>
-    
-    <!-- Enlace a tu hoja de estilos -->
     <link rel="stylesheet" href="css/style.css">
-    
-    <!-- Estilos adicionales para que el iframe ocupe todo el espacio -->
-    <style>
-        /* Hacemos que el contenedor principal ocupe toda la altura de la ventana */
-        html, body, .module-container, .content-area {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        .content-area {
-            flex-grow: 1; /* Permite que el área de contenido crezca para llenar el espacio */
-        }
-    </style>
 </head>
 <body>
     <div class="module-container">
-        <!-- BARRA DE NAVEGACIÓN SUPERIOR (Reutilizable en todas las oficinas) -->
         <header class="module-header">
             <a href="/home.html" class="back-to-panel">← Volver al Panel</a>
-            <nav class="module-nav">
-             <nav id="module-navigation-bar" class="module-nav"></nav>
-            </nav>
+            <nav id="module-navigation-bar" class="module-nav"></nav>
             <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
         </header>
-
-        <!-- ÁREA DE CONTENIDO PRINCIPAL (Aquí va la incrustación de AppSheet) -->
         <main class="content-area">
-            <!-- 
-                Iframe con la URL de tu AppSheet para CRM.
-                Ya no debería tener problemas de autenticación.
-            -->
             <iframe
                 style="border: 0; width: 100%; height: 100%;"
                 src="https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67?&embed=true"
