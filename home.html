@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Principal - Sistema CITFSA</title>
+    <!-- Carga de la librería de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="auth.js" defer></script>
+    <!-- Carga de NUESTRA librería central -->
+    <script src="supabase-client.js" defer></script>
     <!-- Este script es ESPECÍFICO para esta página -->
     <script src="home-logic.js" defer></script>
+    <!-- Enlace a tu hoja de estilos -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -16,7 +19,7 @@
             <div class="header-logo">Sistema CITFSA</div>
             <div class="header-user">
                 <span id="welcome-message"></span>
-                <!-- El botón de logout llamará a la función de auth.js -->
+                <!-- El botón de logout llamará a la función de supabase-client.js -->
                 <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
             </div>
         </header>
