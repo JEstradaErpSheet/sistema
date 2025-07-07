@@ -1,9 +1,8 @@
-// select-profile-logic.js - VERSIÓN COMPLETA Y FINAL (Ajustada a tu función SQL)
+// select-profile-logic.js - VERSIÓN FINAL (con el nombre de la función RPC corregido)
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('PÁGINA CARGADA. Iniciando...');
 
-    // 1. Verificar si hay sesión
     const sessionString = localStorage.getItem('supabase.auth.session');
     if (!sessionString) {
         console.error('ERROR CRÍTICO: No hay sesión en localStorage. Saliendo.');
@@ -16,8 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const profilesContainer = document.getElementById('profiles-container');
     
-    // 2. Obtener los perfiles del usuario
-    console.log('Llamando a RPC: obtener_perfiles_citfsa...');
     const { data: profiles, error } = await supabaseClient.rpc('obtener_perfiles_citfsa', {
         p_email: session.user.email
     });
@@ -28,9 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    console.log('Llamada RPC completada. DATOS RECIBIDOS:', profiles);
-    
-    // 3. Manejar el caso de que no haya perfiles
     if (!profiles || !Array.isArray(profiles) || profiles.length === 0) {
         console.warn('Los datos recibidos no son un array válido o están vacíos.');
         profilesContainer.innerHTML = `
@@ -41,20 +35,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // 4. Si hay perfiles, creamos los botones
-    console.log(`¡ÉXITO! Se encontraron ${profiles.length} perfiles.`);
-    profilesContainer.innerHTML = ''; // Limpiar el mensaje "Cargando..."
+    profilesContainer.innerHTML = '';
 
     profiles.forEach((profile, index) => {
-        console.log(`--- Procesando Perfil #${index + 1}:`, profile);
-        
-        if (!profile.hasOwnProperty('etiquetausuario')) {
-            console.error(`ERROR: El perfil #${index + 1} no tiene la propiedad 'etiquetausuario'.`);
-            return;
-        }
-
+        const buttonText = profile.etiquetausuario || profile.usuario || 'Perfil sin nombre';
         const button = document.createElement('button');
-        button.textContent = profile.etiquetausuario;
+        button.textContent = buttonText;
         button.className = 'profile-button';
         button.onclick = () => {
             promptForPassword(profile);
@@ -63,11 +49,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-
-/**
- * Muestra el modal para pedir la contraseña de un perfil específico.
- * @param {object} profile El objeto de perfil seleccionado.
- */
 function promptForPassword(profile) {
     console.log('Solicitando contraseña para el perfil:', profile);
 
@@ -90,16 +71,15 @@ function promptForPassword(profile) {
             return;
         }
 
-        console.log(`Verificando contraseña para el usuario ID: ${profile.id_usuario}`);
         errorMessage.textContent = 'Verificando...';
 
-        // --- INICIO DE LA CORRECCIÓN ---
-        // Llamamos a TU función de Supabase con los nombres de parámetros CORRECTOS
-        const { data, error } = await supabaseClient.rpc('verify_user_password_citfsa', {
-            p_id_usuario: profile.id_usuario,         // Ajustado de p_user_id a p_id_usuario
-            p_contrasena_ingresada: password       // Ajustado de p_password a p_contrasena_ingresada
+        // --- INICIO DE LA CORRECCIÓN CLAVE ---
+        // Llamamos a la función con su nombre REAL y los parámetros CORRECTOS
+        const { data, error } = await supabaseClient.rpc('verificar_contrasena_citfsa', {
+            p_id_usuario: profile.id_usuario,
+            p_contrasena_ingresada: password
         });
-        // --- FIN DE LA CORRECCIÓN ---
+        // --- FIN DE LA CORRECCIÓN CLAVE ---
 
         if (error) {
             console.error('Error al verificar contraseña:', error);
