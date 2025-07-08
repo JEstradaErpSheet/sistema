@@ -1,68 +1,61 @@
-// ========= CÓDIGO FINAL Y CORRECTO para compras-logic.js =========
+// compras-logic.js - CÓDIGO FINAL Y CORRECTO
 
-// YA NO NECESITAMOS la función setActiveProfile. La eliminamos por completo.
-// La seguridad ahora viaja en el "pasaporte" JWT.
-
-/**
- * Carga los módulos permitidos para el usuario autenticado en la barra de navegación.
- * Esta función ha sido actualizada para usar la nueva RPC segura.
- */
-async function loadNavigationModules() {
-    // Usamos el ID de tu HTML, que es el correcto.
-    const navBar = document.getElementById('module-navigation-bar'); 
-    if (!navBar) {
-        console.error('No se encontró el contenedor de la barra de navegación #module-navigation-bar.');
-        return;
-    }
-
-    // Ya no necesitamos pasar el roleId.
-    console.log(`Llamando a la nueva RPC get_allowed_modules_citfsa (sin parámetros)...`);
-
-    // Llamamos a la nueva versión de la RPC que no necesita parámetros.
-    const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa');
-    
-    if (error) {
-        console.error("Error al cargar módulos de navegación:", error);
-        return;
-    }
-    if (!modules || modules.length === 0) {
-        console.warn('No se encontraron módulos para este perfil.');
-        navBar.innerHTML = ''; // Limpiar por si acaso
-        return;
-    }
-    navBar.innerHTML = ''; 
-    modules.forEach(module => {
-        const link = document.createElement('a');
-        
-        // --- AJUSTE DE NOMBRES DE COLUMNA ---
-        // La nueva función SQL devuelve 'url_pagina' y 'etiqueta'.
-        link.href = module.url_pagina || '#';
-        link.textContent = module.etiqueta || 'Módulo'; 
-        
-        if (window.location.pathname.includes(module.url_pagina)) {
-            link.className = 'active';
-        }
-        
-        navBar.appendChild(link);
-    });
-} 
-
-// Punto de entrada principal.
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof supabaseClient === 'undefined') {
-        return;
-    }
+    // Verificación estándar de Supabase y del perfil de usuario.
+    if (typeof supabaseClient === 'undefined') { return; }
+
     const profileString = localStorage.getItem('selectedProfile');
     if (!profileString) {
         handleLogout();
         return;
     }
 
-    // Ya no necesitamos la variable 'profile' aquí, pero es bueno confirmar que existe.
-    console.log(`Acceso verificado para el perfil:`, JSON.parse(profileString));
+    const profile = JSON.parse(profileString);
+    console.log(`Acceso verificado para el perfil:`, profile);
 
-    // --- CAMBIO CLAVE ---
-    // Ya no llamamos a setActiveProfile. Esa lógica ya no existe.
-    // Simplemente llamamos a la función para cargar la navegación.
-    loadNavigationModules();
+    // --- ¡LA LÓGICA CORRECTA! ---
+    // Llamamos a la función para cargar la barra de navegación,
+    // pasándole el ID del perfil que es necesario ahora.
+    loadNavigationModules(profile.id_usuario);
 });
+
+/**
+ * Carga los módulos permitidos para un perfil y los muestra en la barra de navegación superior.
+ * @param {string} profileId - El ID del perfil del usuario activo.
+ */
+async function loadNavigationModules(profileId) {
+    // Asegúrate de que tus páginas de módulo (crm.html, etc.) tengan un contenedor
+    // con este ID para la barra de navegación.
+    const navContainer = document.getElementById('dynamic-nav-modules');
+    if (!navContainer) {
+        console.error('Error: Contenedor de navegación #dynamic-nav-modules no encontrado en el HTML.');
+        return;
+    }
+
+    console.log(`Llamando a la nueva RPC get_allowed_modules_citfsa con el ID de perfil: ${profileId}`);
+    
+    // --- ¡LA LLAMADA CORRECTA! ---
+    // Llamamos a la RPC con el parámetro que ahora es obligatorio.
+    const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa', {
+        p_profile_id: profileId
+    });
+
+    if (error) {
+        console.error('Error al cargar módulos de navegación:', error);
+        navContainer.innerHTML = '<a href="/home.html" class="nav-item">Error de Carga</a>';
+        return;
+    }
+
+    if (!modules || modules.length === 0) {
+        console.warn('Este perfil no tiene módulos de navegación asignados.');
+        return;
+    }
+
+    // Construimos el HTML de la barra de navegación.
+    navContainer.innerHTML = '';
+    const currentPagePath = window.location.pathname;
+    modules.forEach(module => {
+        const isActive = currentPagePath.includes(module.url_pagina);
+        navContainer.innerHTML += `<a href="${module.url_pagina}" class="nav-item ${isActive ? 'active' : ''}">${module.etiqueta}</a>`;
+    });
+}
