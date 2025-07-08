@@ -1,4 +1,5 @@
-// compras-logic.js - VERSIÓN 2.0 (Ahora también carga la barra de navegación)
+// Este es el contenido completo que debería tener el archivo
+// compras-logic.js. La clave es la nueva función 'setActiveProfile'.
 
 // Función para establecer el perfil activo en el backend de Supabase
 async function setActiveProfile(userId) {
@@ -26,7 +27,7 @@ async function loadNavigationModules(userRoleId) {
         return;
     }
 
-    const navContainer = document.getElementById('dynamic-nav-modules');
+    const navContainer = document.getElementById('module-navigation-bar');
     if (!navContainer) {
         console.error('No se encontró el contenedor de navegación #dynamic-nav-modules.');
         return;
