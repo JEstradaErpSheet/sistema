@@ -1,69 +1,59 @@
-// inventarios-logic.js - VERSIÓN 2.0 (Ahora también carga la barra de navegación)
+// CÓDIGO FINAL Y UNIFICADO PARA TODAS LAS PÁGINAS DE MÓDULO
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof supabaseClient === 'undefined') {
-        console.error('ERROR CRÍTICO: supabaseClient no está definido.');
-        return;
-    }
-
+    // Verificación estándar de Supabase y del perfil de usuario.
+    if (typeof supabaseClient === 'undefined') { return; }
     const profileString = localStorage.getItem('selectedProfile');
     if (!profileString) {
-        console.warn('Acceso denegado: no hay un perfil seleccionado. Redirigiendo...');
         handleLogout();
         return;
     }
-    
-    const profile = JSON.parse(profileString);
-    console.log(`Acceso permitido a Contabilidad para el perfil:`, profile);
 
-    // ¡NUEVO! Llamamos a la función para cargar la barra de navegación
-    loadNavigationModules(profile.id_rol);
+    const profile = JSON.parse(profileString);
+    console.log(`Acceso permitido a ${document.title} para el perfil:`, profile);
+
+    // Llamamos a la función para cargar la barra de navegación,
+    // pasándole el ID del perfil que es necesario ahora.
+    loadNavigationModules(profile.id_usuario);
 });
 
 /**
- * Carga los módulos permitidos para un rol en la barra de navegación superior.
- * @param {string} roleId El ID del rol del usuario.
+ * Carga los módulos permitidos para un perfil y los muestra en la barra de navegación superior.
+ * @param {string} profileId - El ID del perfil del usuario activo.
  */
-async function loadNavigationModules(roleId) {
-    const navBar = document.getElementById('module-navigation-bar');
-    if (!navBar) {
-        console.error('No se encontró el contenedor de la barra de navegación.');
+async function loadNavigationModules(profileId) {
+    // Asegúrate de que tus páginas de módulo (crm.html, etc.) tengan un contenedor
+    // con este ID para la barra de navegación.
+    const navContainer = document.getElementById('dynamic-nav-modules');
+    if (!navContainer) {
+        console.error('Error: Contenedor de navegación #dynamic-nav-modules no encontrado en el HTML.');
         return;
     }
 
-    if (!roleId) {
-        console.error('No se proporcionó un ID de rol para cargar los módulos.');
-        return;
-    }
+    console.log(`Cargando módulos de navegación para el perfil ID: ${profileId}`);
     
-    console.log(`Cargando módulos de navegación para el rol ID: ${roleId}`);
-
+    // --- ¡LA LLAMADA CORRECTA! ---
+    // Llamamos a la RPC con el parámetro que ahora es obligatorio.
     const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa', {
-        p_user_role_id: roleId
+        p_profile_id: profileId
     });
 
     if (error) {
-        console.error("Error al cargar módulos de navegación:", error);
-        return; // No mostramos nada en la barra si hay un error
-    }
-
-    if (!modules || modules.length === 0) {
-        console.warn('No se encontraron módulos para este perfil.');
+        console.error('Error al cargar módulos de navegación:', error);
+        navContainer.innerHTML = '<a href="/home.html" class="nav-item">Error</a>'; // Muestra un error en la UI
         return;
     }
 
-    // Limpiamos la barra antes de llenarla
-    navBar.innerHTML = ''; 
-    modules.forEach(module => {
-        const link = document.createElement('a');
-        link.href = module.page_url || '#';
-        link.textContent = module.module_name || 'Módulo';
+    if (!modules || modules.length === 0) {
+        console.warn('Este perfil no tiene módulos de navegación asignados.');
+        return;
+    }
 
-        // Resaltamos el link de la página actual
-        if (window.location.pathname.includes(module.page_url)) {
-            link.className = 'active';
-        }
-        
-        navBar.appendChild(link);
+    // Construimos el HTML de la barra de navegación.
+    navContainer.innerHTML = '';
+    const currentPagePath = window.location.pathname;
+    modules.forEach(module => {
+        const isActive = currentPagePath.includes(module.url_pagina);
+        navContainer.innerHTML += `<a href="${module.url_pagina}" class="nav-item ${isActive ? 'active' : ''}">${module.etiqueta}</a>`;
     });
 }
