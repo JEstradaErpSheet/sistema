@@ -1,4 +1,4 @@
-// compras-logic.js - CÓDIGO FINAL Y CORRECTO
+// compras-logic.js - VERSIÓN FINAL Y SINCRONIZADA
 
 document.addEventListener('DOMContentLoaded', () => {
     // Verificación estándar de Supabase y del perfil de usuario.
@@ -13,9 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const profile = JSON.parse(profileString);
     console.log(`Acceso verificado para el perfil:`, profile);
 
-    // --- ¡LA LÓGICA CORRECTA! ---
     // Llamamos a la función para cargar la barra de navegación,
-    // pasándole el ID del perfil que es necesario ahora.
+    // pasándole el ID del perfil que es necesario.
     loadNavigationModules(profile.id_usuario);
 });
 
@@ -24,17 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
  * @param {string} profileId - El ID del perfil del usuario activo.
  */
 async function loadNavigationModules(profileId) {
-    // Asegúrate de que tus páginas de módulo (crm.html, etc.) tengan un contenedor
-    // con este ID para la barra de navegación.
-    const navContainer = document.getElementById('dynamic-nav-modules');
+    // ¡AQUÍ ESTÁ LA CORRECCIÓN CLAVE!
+    // Usamos el ID de tu HTML: "module-navigation-bar".
+    const navContainer = document.getElementById('module-navigation-bar');
     if (!navContainer) {
-        console.error('Error: Contenedor de navegación #dynamic-nav-modules no encontrado en el HTML.');
+        console.error('Error: Contenedor de navegación #module-navigation-bar no encontrado en el HTML.');
         return;
     }
 
-    console.log(`Llamando a la nueva RPC get_allowed_modules_citfsa con el ID de perfil: ${profileId}`);
+    console.log(`Llamando a la RPC get_allowed_modules_citfsa con el ID de perfil: ${profileId}`);
     
-    // --- ¡LA LLAMADA CORRECTA! ---
     // Llamamos a la RPC con el parámetro que ahora es obligatorio.
     const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa', {
         p_profile_id: profileId
