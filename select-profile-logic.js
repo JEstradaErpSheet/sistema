@@ -1,4 +1,4 @@
-// select-profile-logic.js - VERSIÓN FINAL (con Contexto de Sesión)
+// select-profile-logic.js - VERSIÓN DEFINITIVA CON SEGURIDAD RLS/JWT
 
 document.addEventListener('DOMContentLoaded', async () => {
     if (typeof supabaseClient === 'undefined') {
@@ -6,7 +6,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     
-    const sessionString = localStorage.getItem('supabase.auth.session');
+    // NOTA: Tu código original usaba 'supabase.auth.session'. 
+    // La forma moderna es supabase.auth.getSession(). 
+    // Ambas funcionan, pero mantendremos tu lógica original por consistencia.
+    const sessionString = localStorage.getItem('supabase.auth.session'); 
     if (!sessionString) {
         console.error('No hay sesión en localStorage. Redirigiendo al inicio.');
         window.location.href = '/';
@@ -16,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const session = JSON.parse(sessionString);
     const profilesContainer = document.getElementById('profiles-container');
     
+    // Esta parte de tu código funciona perfectamente y no se ha cambiado.
     console.log('Obteniendo perfiles para:', session.user.email);
     const { data: profiles, error } = await supabaseClient.rpc('obtener_perfiles_citfsa', { p_email: session.user.email });
 
@@ -43,6 +47,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
+/**
+ * Esta es tu función original, que funciona con tu HTML.
+ * Solo se ha modificado la lógica interna de validación de contraseña.
+ */
 function promptForPassword(profile) {
     const modal = document.getElementById('password-modal');
     const title = document.getElementById('password-prompt-title');
@@ -51,6 +59,7 @@ function promptForPassword(profile) {
     const errorMessage = document.getElementById('error-message');
     const togglePassword = document.getElementById('toggle-password-visibility');
 
+    // Esta parte de la UI no ha cambiado.
     title.textContent = `Contraseña para ${profile.etiquetausuario}`;
     passwordInput.value = '';
     errorMessage.textContent = '';
@@ -65,11 +74,13 @@ function promptForPassword(profile) {
     passwordInput.setAttribute('type', 'password');
     togglePassword.textContent = '👁️';
 
+    // Este es el manejador del botón que contiene el único cambio crítico.
     submitBtn.onclick = async () => {
         const password = passwordInput.value;
         if (!password) { errorMessage.textContent = 'Por favor, ingresa una contraseña.'; return; }
         errorMessage.textContent = 'Verificando...';
 
+        // 1. Verificar la contraseña (sin cambios).
         const { data, error } = await supabaseClient.rpc('verificar_contrasena_citfsa', {
             p_id_usuario: profile.id_usuario,
             p_contrasena_ingresada: password
@@ -81,23 +92,29 @@ function promptForPassword(profile) {
             return;
         }
 
+        // 2. Si la contraseña es correcta, ejecutamos la lógica de seguridad final.
         if (data === true) {
-            console.log('Contraseña correcta. Estableciendo perfil activo en la sesión...');
+            console.log('Contraseña correcta. Sellando el pasaporte del usuario (JWT)...');
             
-            // --- ¡AQUÍ ESTÁ LA NUEVA LÓGICA CRÍTICA! ---
-            // Le decimos a la base de datos qué perfil vamos a usar en esta sesión.
-            const { error: setError } = await supabaseClient.rpc('set_active_profile', {
-                profile_id: profile.id_usuario
+            // --- INICIO DEL CÓDIGO FINAL Y CORRECTO ---
+            // Reemplazamos la llamada a la función eliminada 'set_active_profile'
+            // con el método correcto para actualizar el JWT del usuario.
+            const { error: updateError } = await supabaseClient.auth.updateUser({
+                data: {
+                    // El nombre 'profile_id' aquí DEBE COINCIDIR con el que busca 
+                    // nuestra función SQL 'public.get_profile_id()'.
+                    profile_id: profile.id_usuario 
+                }
             });
 
-            if (setError) {
-                console.error('Error crítico al establecer el perfil activo:', setError);
-                errorMessage.textContent = 'No se pudo iniciar la sesión del perfil. Inténtalo de nuevo.';
-                return; // Detenemos la redirección si no podemos establecer el perfil.
+            if (updateError) {
+                console.error('Error crítico al sellar el pasaporte (JWT):', updateError);
+                errorMessage.textContent = 'No se pudo iniciar la sesión del perfil. Contacta a soporte.';
+                return; // Detenemos la redirección si no podemos actualizar el JWT.
             }
-            // --- FIN DE LA NUEVA LÓGICA ---
+            // --- FIN DEL CÓDIGO FINAL Y CORRECTO ---
 
-            console.log('Perfil activo establecido. Redirigiendo a home.html...');
+            console.log('Pasaporte sellado. Redirigiendo a home.html...');
             localStorage.setItem('selectedProfile', JSON.stringify(profile));
             window.location.href = '/home.html';
         } else {
