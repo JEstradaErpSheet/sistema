@@ -41,7 +41,8 @@ async function loadModules() {
     modulesGrid.innerHTML = '<p>Cargando módulos...</p>'; // Mensaje de carga
 
     // Llamamos a la nueva RPC segura que no necesita parámetros.
-    const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa');
+    const { data: who_am_i, error } = await supabaseClient.rpc('ask_who_am_i');
+    console.log("RESPUESTA A 'QUIÉN SOY':", who_am_i);
 
     if (error) {
         console.error("Error al cargar los módulos:", error);
