@@ -1,25 +1,78 @@
--- Función SQL final y correcta que debe estar en tu base de datos
-CREATE OR REPLACE FUNCTION public.get_allowed_modules_citfsa()
-RETURNS TABLE(id_modulo TEXT, etiqueta TEXT, url_pagina TEXT, icono TEXT)
-LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
-DECLARE
-    v_id_rol_del_usuario TEXT;
-BEGIN
-    SELECT u.id_rol INTO v_id_rol_del_usuario
-    FROM erp_sistema.usuario u
-    WHERE u.id_usuario = public.get_profile_id();
+// home-logic.js - VERSIÓN FINAL (sincronizada con la tabla 'modulo' y la arquitectura JWT)
 
-    IF v_id_rol_del_usuario IS NOT NULL THEN
-        RETURN QUERY
-        SELECT 
-            m.id_modulos,
-            m.etiqueta,
-            m.url_pagina,
-            m.imagen_etiqueta_url -- Mapeamos imagen_etiqueta_url a la columna de salida 'icono'
-        FROM erp_sistema.permiso p
-        JOIN erp_sistema.modulo m ON p.id_modulo = m.id_modulos 
-        WHERE p.id_rol = v_id_rol_del_usuario
-        ORDER BY m.id_modulos;
-    END IF;
-END;
-$$;
+document.addEventListener('DOMContentLoaded', () => {
+    // Verificación de que el cliente de Supabase está listo.
+    if (typeof supabaseClient === 'undefined') {
+        console.error('CRITICAL ERROR: supabaseClient no está definido.');
+        return;
+    }
+
+    // Verificación de que el usuario ha seleccionado un perfil.
+    const profileString = localStorage.getItem('selectedProfile');
+    if (!profileString) {
+        console.warn('No se encontró un perfil seleccionado. Redirigiendo al inicio.');
+        handleLogout(); 
+        return;
+    }
+
+    // Mostramos el mensaje de bienvenida.
+    const profile = JSON.parse(profileString);
+    const welcomeElement = document.getElementById('welcome-message');
+    if (welcomeElement) {
+        welcomeElement.textContent = `Bienvenido, ${profile.etiquetausuario || profile.usuario}`;
+    }
+
+    // Llamamos a la función para cargar los módulos.
+    loadModules();
+});
+
+/**
+ * Carga los módulos permitidos para el usuario actual (obtenido del JWT)
+ * y los muestra en la cuadrícula de la página principal.
+ */
+async function loadModules() {
+    const modulesGrid = document.getElementById('modules-grid');
+    if (!modulesGrid) {
+        console.error("El contenedor de módulos '#modules-grid' no se encontró en el HTML.");
+        return;
+    }
+
+    console.log(`Llamando a la RPC segura 'get_allowed_modules_citfsa' (sin parámetros)...`);
+    modulesGrid.innerHTML = '<p>Cargando módulos...</p>'; // Mensaje de carga
+
+    // Llamamos a la nueva RPC segura que no necesita parámetros.
+    const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa');
+
+    if (error) {
+        console.error("Error al cargar los módulos:", error);
+        modulesGrid.innerHTML = `<p class="error-text">Error al cargar los módulos. Por favor, revisa la consola para más detalles.</p>`;
+        return;
+    }
+
+    if (!modules || modules.length === 0) {
+        modulesGrid.innerHTML = '<p>No tienes módulos asignados para este perfil.</p>';
+        return;
+    }
+
+    console.log('Módulos recibidos del backend:', modules);
+    modulesGrid.innerHTML = ''; // Limpiar el mensaje de "Cargando...".
+
+    // Iteramos sobre los módulos y creamos una tarjeta para cada uno.
+    modules.forEach(module => {
+        const card = document.createElement('a');
+        
+        // Usamos los nombres de columna EXACTOS que devuelve la función SQL.
+        card.href = module.url_pagina || '#';
+        card.className = 'app-card';
+        
+        // 'icono' y 'etiqueta' son los alias que le dimos en la función SQL.
+        const iconUrl = module.icono || 'img/default-icon.png';
+        const moduleName = module.etiqueta || 'Módulo sin nombre';
+
+        card.innerHTML = `
+            <img src="${iconUrl}" alt="Icono de ${moduleName}">
+            <span>${moduleName}</span>
+        `;
+        modulesGrid.appendChild(card);
+    });
+}
