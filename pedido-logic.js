@@ -1,8 +1,4 @@
-// /assets/js/pedido-logic.js
-
-// Importamos el cliente de Supabase. Asegúrate de que la ruta sea correcta.
-// Usamos el import/export estándar de ES Modules.
-import { supabase } from '../../supabase-client.js';
+// /pedido-logic.js
 
 // --- INICIO: ELEMENTOS DEL DOM ---
 // Guardamos referencias a los elementos HTML que vamos a manipular frecuentemente.
@@ -61,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function loadNavigationModules(profileId) {
     // Esta lógica es idéntica a la de tus otros módulos para mantener la consistencia.
-    const { data: modules, error } = await supabase.rpc('get_allowed_modules_citfsa', { p_profile_id: profileId });
+    const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa', { p_profile_id: profileId });
 
     if (error) {
         console.error('Error al cargar módulos de navegación:', error);
@@ -88,7 +84,7 @@ async function loadPedidos() {
     showLoading(true);
     pedidosTableBody.innerHTML = '';
 
-    const { data, error } = await supabase.rpc('get_pedidos_vista');
+    const { data, error } = await supabaseClient.rpc('get_pedidos_vista');
 
     showLoading(false);
     if (error) {
@@ -201,7 +197,7 @@ async function handleCancelarPedido(pedidoId) {
     if (!confirm('¿Está seguro de que desea cancelar este pedido? Esta acción no se puede deshacer.')) {
         return;
     }
-    const { error } = await supabase.rpc('cancelar_pedido', { p_id_pedido: pedidoId });
+    const { error } = await supabaseClient.rpc('cancelar_pedido', { p_id_pedido: pedidoId });
     if (error) {
         alert('Error al cancelar el pedido: ' + error.message);
     } else {
@@ -241,7 +237,7 @@ async function handleGuardarPedido() {
     setGuardarButtonState(true); // Bloquear botón y mostrar spinner
 
     // Llamar a la RPC de Supabase para guardar
-    const { data, error } = await supabase.rpc('upsert_pedido_completo', {
+    const { data, error } = await supabaseClient.rpc('upsert_pedido_completo', {
         p_id_pedido: formIdPedido.value || null,
         p_observaciones: formObservaciones.value,
         p_id_cliente: formIdCliente.value,
@@ -283,8 +279,8 @@ function agregarFilaDetalle() {
 async function populateSelects() {
     // Usamos Promise.all para cargar ambos en paralelo, es más eficiente.
     const [clientesRes, recursosRes] = await Promise.all([
-        supabase.rpc('get_lista_clientes'),
-        supabase.rpc('get_lista_recursos')
+        supabaseClient.rpc('get_lista_clientes'),
+        supabaseClient.rpc('get_lista_recursos')
     ]);
 
     if (clientesRes.error) console.error('Error al cargar clientes:', clientesRes.error);
