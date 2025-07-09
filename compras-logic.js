@@ -56,3 +56,4 @@ async function loadNavigationModules(profileId) {
         const isActive = currentPagePath.includes(module.url_pagina);
         navContainer.innerHTML += `<a href="${module.url_pagina}" class="nav-item ${isActive ? 'active' : ''}">${module.etiqueta}</a>`;
     });
+}
