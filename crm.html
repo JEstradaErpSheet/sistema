@@ -4,65 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Sistema CITFSA</title>
-    
-    <!-- Scripts requeridos en el orden correcto -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="auth.js"></script>
+    <script src="supabase-client.js" defer></script>
+    <script src="crm-logic.js" defer></script>
     <link rel="stylesheet" href="css/style.css">
-
-    <!-- Script específico de la página -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Asegura la página
-            checkAuth();
-            
-            // 2. Carga el iframe de AppSheet de forma directa
-            const iframe = document.getElementById('app-iframe');
-            if (iframe) {
-                // ¡¡¡CAMBIA ESTA URL PARA CADA MÓDULO!!!
-                iframe.src = 'https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67?&embed=true';
-            }
-        });
-    </script>
 </head>
 <body>
-    <div class="page-container">
-        
-        <!-- =============================================================== -->
-        <!-- ESTE ES EL HEADER COMPLETO CON LA NAVEGACIÓN RESTAURADA -->
-        <!-- =============================================================== -->
-        <header class="main-header">
-            <!-- Logo y enlace para volver al Panel Principal -->
-            <div class="header-logo">
-                <a href="home.html" class="home-link">Volver al Panel</a>
-            </div>
-            
-            <!-- Navegación directa entre los Módulos -->
-            <nav class="module-nav">
-                <a href="crm.html">CRM</a>
-                <a href="contabilidad.html">Contabilidad</a>
-                <a href="ventas.html">Ventas</a>
-                <a href="compra.html">Compras</a>
-                <a href="inventarios.html">Inventarios</a>
-                <a href="proyectos.html">Proyectos</a>
-                <a href="nominas.html">Nóminas</a>
-                <a href="activo.html">Activo</a>
-                <a href="presupuesto.html">Presupuesto</a>
-                <a href="dms.html">Documentos</a>
-                <a href="Planificador.html">Agenda</a>
-            </nav>
-
-            <!-- Botón de Cerrar Sesión a la derecha -->
-            <div class="header-user">
-                <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
-            </div>
+    <div class="module-container">
+        <header class="module-header">
+            <a href="/home.html" class="back-to-panel">← Volver al Panel</a>
+            <nav id="module-navigation-bar" class="module-nav"></nav>
+            <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
         </header>
-
-        <!-- Contenido principal con el iframe -->
-        <main class="iframe-content">
-            <iframe id="app-iframe" frameborder="0"></iframe>
+        <main class="content-area">
+            <iframe
+                style="border: 0; width: 100%; height: 100%;"
+                src="https://www.appsheet.com/start/66f3eb3b-2460-4cdb-a9a8-335a038cbb67?&embed=true"
+                allowfullscreen
+            ></iframe>
         </main>
-        
     </div>
 </body>
 </html>
