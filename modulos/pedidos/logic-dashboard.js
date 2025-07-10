@@ -20,18 +20,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadModuleApps(profile.id_usuario);
 });
 
+// =============================================================
+//               INICIO DE LA SECCIÓN CORREGIDA
+// =============================================================
 async function loadNavigationModules(profileId) {
     const navContainer = document.getElementById('module-navigation-bar');
     const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa', { p_profile_id: profileId });
     if (error) { console.error('Error cargando navegación:', error); return; }
     
-    const currentPagePath = '/modulos/pedidos/'; // El path de este dashboard
+    const currentPagePath = '/modulos/pedidos/';
+    
     navContainer.innerHTML = modules.map(module => {
-        // Marcamos 'PEDIDOS' como activo si la URL del módulo coincide
-        const isActive = module.url_pagina.startsWith(currentPagePath);
-        return `<a href="${module.url_pagina}" class="nav-item ${isActive ? 'active' : ''}">${module.etiqueta}</a>`;
+        // 1. Verificamos si la url_pagina existe ANTES de usarla.
+        // Si es nula, la tratamos como un enlace deshabilitado que no lleva a ningún sitio.
+        const url = module.url_pagina || '#';
+        
+        // 2. Solo calculamos 'isActive' si la URL existe.
+        const isActive = module.url_pagina ? module.url_pagina.startsWith(currentPagePath) : false;
+
+        // 3. Construimos el enlace.
+        return `<a href="${url}" class="nav-item ${isActive ? 'active' : ''}">${module.etiqueta}</a>`;
     }).join('');
 }
+// =============================================================
+//                FIN DE LA SECCIÓN CORREGIDA
+// =============================================================
 
 async function loadModuleApps(profileId) {
     const grid = document.getElementById('apps-grid');
@@ -45,7 +58,7 @@ async function loadModuleApps(profileId) {
         return;
     }
 
-    if (apps.length === 0) {
+    if (!apps || apps.length === 0) {
         grid.innerHTML = '<p>No hay aplicaciones disponibles en este módulo.</p>';
         return;
     }
