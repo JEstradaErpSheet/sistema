@@ -1,54 +1,47 @@
-// ==================================================================
-//               VERSIÓN DE DEPURACIÓN EXTREMA
-//             Solo carga la barra de navegación y nada más
-// ==================================================================
+/*
+==================================================================
+        VERSIÓN DE DEPURACIÓN - CÓDIGO DEL MODAL DESACTIVADO
+==================================================================
+*/
 
+// --- INICIO: ELEMENTOS DEL DOM ---
+const welcomeMessage = document.getElementById('welcome-message');
+const navContainer = document.getElementById('module-navigation-bar');
+const pedidosTableBody = document.getElementById('pedidos-table-body');
+const loadingSpinner = document.getElementById('loading-spinner');
+const errorMessage = document.getElementById('error-message');
+const nuevoPedidoBtn = document.getElementById('btn-nuevo-pedido');
+
+/* --- CÓDIGO DEL MODAL DESACTIVADO ---
+const pedidoModalEl = document.getElementById('pedido-modal');
+const pedidoModalLabel = document.getElementById('pedidoModalLabel');
+const pedidoForm = document.getElementById('pedido-form');
+// ... y así con todos los elementos del modal ...
+*/
+// --- FIN: ELEMENTOS DEL DOM ---
+
+
+// --- INICIO: LÓGICA DE ARRANQUE ---
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log("DEPURACIÓN: DOMContentLoaded se ha disparado.");
-
-    // 1. Verificación de Supabase Client
-    if (typeof supabaseClient === 'undefined') {
-        console.error("DEPURACIÓN: ¡CRÍTICO! supabaseClient no está definido. Deteniendo todo.");
-        alert("Error crítico: El cliente de Supabase no se ha cargado. Revisa la consola.");
-        return;
-    }
-    console.log("DEPURACIÓN: supabaseClient SÍ está definido.");
-
-    // 2. Verificación del Perfil
     const profileString = localStorage.getItem('selectedProfile');
     if (!profileString) {
-        console.error("DEPURACIÓN: No se encontró 'selectedProfile' en localStorage.");
         window.location.href = '/select-profile.html';
         return;
     }
     const profile = JSON.parse(profileString);
-    console.log("DEPURACIÓN: Perfil encontrado:", profile);
-
-    // 3. Llamar a la ÚNICA función: cargar la barra de navegación
-    console.log("DEPURACIÓN: Intentando cargar la barra de navegación...");
+    if (welcomeMessage) {
+        welcomeMessage.textContent = `Bienvenido, ${profile.etiquetausuario || profile.usuario}`;
+    }
     await loadNavigationModules(profile.id_usuario);
-    console.log("DEPURACIÓN: La función de la barra de navegación ha terminado.");
+    await loadPedidos();
     
-    // El resto de las funciones (loadPedidos, setupEventListeners) no se llaman
-    // para aislar el problema.
+    // La función que da vida a los botones AHORA SÓLO TIENE 1 LÍNEA ACTIVA
+    setupEventListeners();
 });
 
 async function loadNavigationModules(profileId) {
-    const navContainer = document.getElementById('module-navigation-bar');
-    if (!navContainer) {
-        console.error("DEPURACIÓN: No se encontró el elemento #module-navigation-bar en el HTML.");
-        return;
-    }
-
     const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa', { p_profile_id: profileId });
-
-    if (error) {
-        console.error('DEPURACIÓN: Error en la llamada RPC para la barra de navegación:', error);
-        navContainer.innerHTML = '<a href="#" class="nav-item">Error al cargar</a>';
-        return;
-    }
-
-    console.log("DEPURACIÓN: Módulos recibidos para la barra de navegación:", modules);
+    if (error) { console.error('Error en RPC de navegación:', error); return; }
     const currentPagePath = window.location.pathname;
     navContainer.innerHTML = modules.map(module => {
         const isActive = currentPagePath.includes(module.url_pagina);
@@ -56,4 +49,44 @@ async function loadNavigationModules(profileId) {
     }).join('');
 }
 
-// Las demás funciones no se incluyen en esta versión de prueba.
+async function loadPedidos() {
+    showLoading(true);
+    pedidosTableBody.innerHTML = '';
+    const profile = JSON.parse(localStorage.getItem('selectedProfile'));
+    const { data, error } = await supabaseClient.rpc('get_pedidos_vista', { p_profile_id: profile.id_usuario });
+    showLoading(false);
+    if (error) { showError('Error al cargar los pedidos: ' + error.message); return; }
+    if (data.length === 0) {
+        pedidosTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No se encontraron pedidos.</td></tr>';
+        return;
+    }
+    pedidosTableBody.innerHTML = data.map(pedido => `
+        <tr>
+            <td>${pedido.nopedido || 'N/A'}</td>
+            <td>${new Date(pedido.fechapedido + 'T00:00:00').toLocaleDateString()}</td>
+            <td>${pedido.nombreusuario || 'N/A'}</td>
+            <td>${pedido.observaciones || ''}</td>
+            <td><span class="badge bg-secondary">${pedido.estadopedido}</span></td>
+            <td class="text-end"></td>
+        </tr>
+    `).join('');
+}
+
+function setupEventListeners() {
+    // La única acción que NO está comentada es un simple alert
+    // para probar si el botón "Nuevo Pedido" responde.
+    nuevoPedidoBtn.addEventListener('click', () => {
+        alert('¡El botón Nuevo Pedido AHORA SÍ funciona!');
+    });
+
+    /* --- CÓDIGO DE LOS OTROS BOTONES DESACTIVADO ---
+    guardarPedidoBtn.addEventListener('click', handleGuardarPedido);
+    agregarDetalleBtn.addEventListener('click', agregarFilaDetalle);
+    // ... etc ...
+    */
+}
+
+
+// --- FUNCIONES DE UTILIDAD (SIN CAMBIOS) ---
+function showLoading(isLoading) { loadingSpinner.style.display = isLoading ? 'block' : 'none'; }
+function showError(message) { errorMessage.style.display = 'block'; errorMessage.textContent = message; }

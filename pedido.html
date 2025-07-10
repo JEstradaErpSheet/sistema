@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pedidos - Sistema CITFSA</title>
+    <title>Pedidos - DEPURACIÓN</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -17,20 +17,16 @@
 
     <div class="module-container">
         
-        <!-- CORRECCIÓN DE DISEÑO: ESTRUCTURA DE DOS BARRAS -->
-        <!-- Barra Superior: Panel y Usuario -->
         <header class="module-header">
             <a href="/home.html" class="back-to-panel">← Volver al Panel</a>
+            <nav id="module-navigation-bar" class="module-nav"></nav>
             <div class="header-user">
                 <span id="welcome-message" class="welcome-message"></span>
                 <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
             </div>
         </header>
-        <!-- Barra Inferior: Navegación de Módulos -->
-        <nav id="module-navigation-bar" class="module-header module-nav" style="border-top: 1px solid var(--color-border); justify-content: flex-start;"></nav>
 
-        <!-- El main ahora tiene un poco menos de padding arriba para compensar la doble barra -->
-        <main class="content-area" style="padding-top: 1.5rem;">
+        <main class="content-area">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Gestión de Pedidos</h2>
                 <button id="btn-nuevo-pedido" class="logout-button" style="background-color: var(--color-success);">
@@ -39,7 +35,7 @@
             </div>
             
             <div id="loading-spinner" class="text-center my-5" style="display: none;">
-                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"><span class="visually-hidden">Cargando...</span></div>
+                <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
             </div>
             <div id="error-message" class="alert alert-danger" style="display: none;"></div>
             
@@ -47,7 +43,7 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th scope="col">N° Pedido</th><th scope="col">Fecha</th><th scope="col">Usuario</th><th scope="col">Observaciones</th><th scope="col">Estado</th><th scope="col" class="text-end">Acciones</th>
+                            <th>N° Pedido</th><th>Fecha</th><th>Usuario</th><th>Observaciones</th><th>Estado</th><th class="text-end">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="pedidos-table-body"></tbody>
@@ -55,51 +51,17 @@
             </div>
         </main>
     </div>
+
+    <!-- 
+        ===========================================================
+        SECCIÓN DEL MODAL TEMPORALMENTE DESACTIVADA PARA DEPURACIÓN
+        ===========================================================
     
-    <!-- El modal no cambia -->
     <div class="modal fade" id="pedido-modal" tabindex="-1" aria-labelledby="pedidoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="pedidoModalLabel">Crear Nuevo Pedido</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="pedido-form" onsubmit="return false;">
-                        <input type="hidden" id="form-id-pedido">
-                        <div class="mb-3">
-                            <label for="form-id-cliente" class="form-label">Cliente</label>
-                            <select class="form-select" id="form-id-cliente" required></select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="form-observaciones" class="form-label">Observaciones</label>
-                            <textarea class="form-control" id="form-observaciones" rows="3"></textarea>
-                        </div>
-                        <hr>
-                        <h6 class="mb-3">Detalles del Pedido</h6>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 60%;">Recurso/Producto</th><th style="width: 25%;">Cantidad</th><th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="pedido-detalles-body"></tbody>
-                        </table>
-                        <button type="button" id="btn-agregar-detalle" class="btn btn-outline-success btn-sm">
-                            <i class="bi bi-plus-lg"></i> Agregar Producto
-                        </button>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="btn-guardar-pedido" class="btn btn-primary">
-                        <span id="guardar-spinner" class="spinner-border spinner-border-sm" style="display: none;" role="status" aria-hidden="true"></span>
-                        Guardar Pedido
-                    </button>
-                </div>
-            </div>
-        </div>
+        ... (todo el contenido del modal estaba aquí) ...
     </div>
+    
+    -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
