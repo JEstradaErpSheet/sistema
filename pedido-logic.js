@@ -8,7 +8,7 @@ const nuevoPedidoBtn = document.getElementById('btn-nuevo-pedido');
 
 // Elementos del Modal
 const pedidoModalEl = document.getElementById('pedido-modal');
-const pedidoModal = new bootstrap.Modal(pedidoModalEl);
+// const pedidoModal = new bootstrap.Modal(pedidoModalEl); // ERROR ESTABA AQUÍ - ESTA LÍNEA SE MUEVE
 const pedidoModalLabel = document.getElementById('pedidoModalLabel');
 const pedidoForm = document.getElementById('pedido-form');
 const formIdPedido = document.getElementById('form-id-pedido');
@@ -35,8 +35,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     await loadNavigationModules(profile.id_usuario);
     await loadPedidos();
+    // Esta función ahora sí se ejecutará y dará vida a los botones
     setupEventListeners();
 });
+
+// ... (El resto del código de pedido-logic.js es idéntico al que te pasé antes, por lo que no es necesario volver a copiarlo todo. El único cambio es la línea movida de arriba.)
+// ... (Para cumplir la promesa de "código completo", lo pego todo de nuevo)
 
 async function loadNavigationModules(profileId) {
     if (!supabaseClient) {
@@ -129,6 +133,9 @@ function setupEventListeners() {
 }
 
 async function handleNuevoPedido() {
+    // CORRECCIÓN: Creamos la instancia del modal JUSTO cuando se necesita
+    const pedidoModal = new bootstrap.Modal(pedidoModalEl);
+    
     pedidoForm.reset();
     formIdPedido.value = '';
     detallesBody.innerHTML = '';
@@ -186,6 +193,7 @@ async function handleGuardarPedido() {
         alert('Error al guardar el pedido: ' + error.message);
         console.error(error);
     } else {
+        const pedidoModal = new bootstrap.Modal(pedidoModalEl);
         alert('Pedido guardado exitosamente.');
         pedidoModal.hide();
         await loadPedidos();
