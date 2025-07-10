@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Cargar componentes dinámicos
     await loadNavigationModules(profile.id_usuario);
-    await loadPedidosAndActions(profile.id_usuario);
+    // CORRECCIÓN CLAVE: Le pasamos el ID del perfil a la función de carga de pedidos.
+    await loadPedidosAndActions(profile.id_usuario); 
 });
 
 async function loadNavigationModules(profileId) {
@@ -23,14 +24,17 @@ async function loadNavigationModules(profileId) {
     // El path de nuestro módulo padre es /modulos/pedidos/
     const moduleBasePath = '/modulos/pedidos/'; 
     navContainer.innerHTML = modules.map(module => {
-        const isActive = module.url_pagina.startsWith(moduleBasePath);
-        return `<a href="${module.url_pagina}" class="nav-item ${isActive ? 'active' : ''}">${module.etiqueta}</a>`;
+        // CORRECCIÓN PARA RUTAS NULAS (ya aplicada en dashboard, la repetimos aquí por seguridad)
+        const url = module.url_pagina || '#';
+        const isActive = module.url_pagina ? module.url_pagina.startsWith(moduleBasePath) : false;
+        return `<a href="${url}" class="nav-item ${isActive ? 'active' : ''}">${module.etiqueta}</a>`;
     }).join('');
 }
 
-async function loadPedidosAndActions(profileId) {
+async function loadPedidosAndActions(profileId) { // CORRECCIÓN: Ahora recibe el ID del perfil
     const tableBody = document.getElementById('pedidos-table-body');
-    // Renombramos la función que llamamos a la que ya probamos en el backend
+    
+    // CORRECCIÓN: Le pasamos el p_profile_id a la RPC que ya probamos
     const { data: pedidos, error } = await supabaseClient.rpc('get_gestion_pedidos_vista', { p_profile_id: profileId });
 
     if (error) {
