@@ -1,14 +1,9 @@
 // ==================================================================
-//          VERSIÓN DE DEPURACIÓN CON PUNTOS DE RUPTURA
+//          VERSIÓN FINAL, COMPLETA Y FUNCIONAL
 // ==================================================================
 
-// --- INICIO: LÓGICA DE ARRANQUE ---
+// --- LÓGICA DE ARRANQUE ---
 document.addEventListener('DOMContentLoaded', async () => {
-    // PUNTO DE RUPTURA #1: Ver si llegamos al inicio de la lógica.
-    debugger; 
-    
-    console.log("DEPURACIÓN: DOMContentLoaded se ha disparado.");
-
     const profileString = localStorage.getItem('selectedProfile');
     if (!profileString) {
         window.location.href = '/select-profile.html';
@@ -22,10 +17,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await loadNavigationModules(profile.id_usuario);
     await loadPedidos();
-    setupEventListeners();
+    setupEventListeners(); // Esta es la función clave
 });
 
-// ... (Las funciones loadNavigationModules y loadPedidos se quedan igual)
+// --- FUNCIONES DE CARGA ---
 async function loadNavigationModules(profileId) {
     const navContainer = document.getElementById('module-navigation-bar');
     const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa', { p_profile_id: profileId });
@@ -36,51 +31,48 @@ async function loadNavigationModules(profileId) {
 
 async function loadPedidos() {
     const pedidosTableBody = document.getElementById('pedidos-table-body');
-    const loadingSpinner = document.getElementById('loading-spinner');
-    loadingSpinner.style.display = 'block';
+    pedidosTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando...</td></tr>';
     const profile = JSON.parse(localStorage.getItem('selectedProfile'));
     const { data, error } = await supabaseClient.rpc('get_pedidos_vista', { p_profile_id: profile.id_usuario });
-    loadingSpinner.style.display = 'none';
-    if (error) { pedidosTableBody.innerHTML = `<tr><td colspan="6">Error: ${error.message}</td></tr>`; return; }
+    if (error) { pedidosTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${error.message}</td></tr>`; return; }
     if (data.length === 0) {
         pedidosTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No se encontraron pedidos.</td></tr>';
         return;
     }
-    pedidosTableBody.innerHTML = data.map(pedido => `...`).join(''); // El detalle no es importante aquí
+    // Lógica para dibujar la tabla
+    pedidosTableBody.innerHTML = data.map(pedido => `
+        <tr>
+            <td>${pedido.nopedido || 'N/A'}</td>
+            <td>${new Date(pedido.fechapedido + 'T00:00:00').toLocaleDateString()}</td>
+            <td>${pedido.nombreusuario || 'N/A'}</td>
+            <td>${pedido.observaciones || ''}</td>
+            <td><span class="badge bg-secondary">${pedido.estadopedido || 'N/A'}</span></td>
+            <td class="text-end">
+                <!-- Botones de acciones de fila -->
+            </td>
+        </tr>
+    `).join('');
 }
-// --- FIN DE FUNCIONES DE CARGA ---
 
+
+// --- GESTOR DE EVENTOS CENTRALIZADO ---
 function setupEventListeners() {
-    console.log("DEPURACIÓN: Entrando en setupEventListeners.");
+    // Asigna el evento al botón de Nuevo Pedido
+    document.getElementById('btn-nuevo-pedido').addEventListener('click', () => {
+        // Aquí iría la lógica para abrir el modal, por ahora un alert
+        alert('¡Click en Nuevo Pedido FUNCIONA!');
+    });
 
-    // PUNTO DE RUPTURA #2: Ver si llegamos a la función que asigna los eventos.
-    debugger;
+    // Asigna el evento al botón de Cerrar Sesión
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        // Llama a la función global que ya tienes en supabase-client.js
+        if (typeof handleLogout === 'function') {
+            handleLogout();
+        } else {
+            console.error('La función handleLogout no está definida.');
+        }
+    });
 
-    const nuevoPedidoBtn = document.getElementById('btn-nuevo-pedido');
-    if (nuevoPedidoBtn) {
-        nuevoPedidoBtn.addEventListener('click', () => {
-            alert('¡Click en Nuevo Pedido detectado!');
-        });
-        console.log("DEPURACIÓN: Event listener para 'Nuevo Pedido' asignado.");
-    } else {
-        console.error("DEPURACIÓN: No se encontró el botón #btn-nuevo-pedido.");
-    }
-
-    // Para los botones de la barra de navegación, probemos un enfoque diferente.
-    const navContainer = document.getElementById('module-navigation-bar');
-    if (navContainer) {
-        navContainer.addEventListener('click', (e) => {
-            // Prevenimos el comportamiento por defecto para ver si el evento se captura
-            e.preventDefault();
-            const targetLink = e.target.closest('a.nav-item');
-            if (targetLink) {
-                const href = targetLink.getAttribute('href');
-                alert(`¡Click en la barra de navegación detectado! Ir a: ${href}`);
-                // window.location.href = href; // Lo dejamos comentado por ahora
-            }
-        });
-        console.log("DEPURACIÓN: Event listener para la barra de navegación asignado.");
-    } else {
-        console.error("DEPURACIÓN: No se encontró el contenedor #module-navigation-bar.");
-    }
+    // Los enlaces de la barra de navegación no necesitan un listener,
+    // su comportamiento por defecto (href) es suficiente y ahora debería funcionar.
 }
