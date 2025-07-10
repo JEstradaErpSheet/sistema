@@ -5,33 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pedidos - Sistema CITFSA</title>
     
-    <!-- Dependencias Estándar (Clonadas de compras.html) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-client.js" defer></script> 
-    <script src="pedido-logic.js" defer></script> 
-    
-    <!-- Hojas de Estilo (Clonadas de compras.html) -->
+    <!-- Hojas de Estilo (Se quedan en el head) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="css/style.css"> <!-- RUTA CORRECTA -->
+    <link rel="stylesheet" href="css/style.css">
 
 </head>
 <body>
 
-    <!-- 1. Contenedor principal del módulo (Clonado de compras.html) -->
+    <!-- 1. Contenedor principal del módulo -->
     <div class="module-container">
         
-        <!-- 2. Cabecera del módulo (Clonada de compras.html) -->
+        <!-- 2. Cabecera del módulo -->
         <header class="module-header">
             <a href="/home.html" class="back-to-panel">← Volver al Panel</a>
             <nav id="module-navigation-bar" class="module-nav"></nav>
-            <div class="header-user"> <!-- Div extra para agrupar usuario y logout -->
+            <div class="header-user">
                 <span id="welcome-message" class="welcome-message"></span>
                 <button onclick="handleLogout()" class="logout-button">Cerrar Sesión</button>
             </div>
         </header>
 
-        <!-- 3. Área de contenido principal (Adaptada para nuestro módulo) -->
+        <!-- 3. Área de contenido principal -->
         <main class="content-area">
             
             <!-- Encabezado de la sección -->
@@ -63,15 +58,13 @@
                             <th scope="col" class="text-end">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="pedidos-table-body">
-                        <!-- Las filas de pedidos se insertarán aquí dinámicamente -->
-                    </tbody>
+                    <tbody id="pedidos-table-body"></tbody>
                 </table>
             </div>
         </main>
     </div>
 
-    <!-- 4. Modal para Crear/Editar Pedido (Sin cambios estructurales) -->
+    <!-- 4. Modal para Crear/Editar Pedido -->
     <div class="modal fade" id="pedido-modal" tabindex="-1" aria-labelledby="pedidoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -124,5 +117,10 @@
 
     <!-- Scripts de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- === SCRIPTS DEL SISTEMA MOVIDOS AL FINAL Y SIN DEFER === -->
+    <script src="supabase-client.js"></script> 
+    <script src="pedido-logic.js"></script> 
+
 </body>
 </html>
