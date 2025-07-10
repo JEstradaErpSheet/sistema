@@ -1,5 +1,3 @@
-alert('¡pedido-logic.js se está ejecutando!');
-
 // --- INICIO: ELEMENTOS DEL DOM ---
 const welcomeMessage = document.getElementById('welcome-message');
 const navContainer = document.getElementById('module-navigation-bar');
@@ -20,14 +18,11 @@ const detallesBody = document.getElementById('pedido-detalles-body');
 const agregarDetalleBtn = document.getElementById('btn-agregar-detalle');
 const guardarPedidoBtn = document.getElementById('btn-guardar-pedido');
 const guardarSpinner = document.getElementById('guardar-spinner');
-
 // --- FIN: ELEMENTOS DEL DOM ---
 
 
 // --- INICIO: LÓGICA DE ARRANQUE Y NAVEGACIÓN ---
-
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Verificación de perfil activo
     const profileString = localStorage.getItem('selectedProfile');
     if (!profileString) {
         alert('No se ha seleccionado un perfil. Redirigiendo...');
@@ -38,14 +33,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (welcomeMessage) {
         welcomeMessage.textContent = `Bienvenido, ${profile.etiquetausuario || profile.usuario}`;
     }
-
-    // 2. Cargar la barra de navegación superior
     await loadNavigationModules(profile.id_usuario);
-
-    // 3. Cargar la vista principal del módulo
     await loadPedidos();
-
-    // 4. Configurar todos los event listeners
     setupEventListeners();
 });
 
@@ -61,19 +50,16 @@ async function loadNavigationModules(profileId) {
         navContainer.innerHTML = '<a href="/home.html" class="nav-item">Error</a>';
         return;
     }
-
     const currentPagePath = window.location.pathname;
     navContainer.innerHTML = modules.map(module => {
         const isActive = currentPagePath.includes(module.url_pagina);
         return `<a href="${module.url_pagina}" class="nav-item ${isActive ? 'active' : ''}">${module.etiqueta}</a>`;
     }).join('');
 }
-
 // --- FIN: LÓGICA DE ARRANQUE ---
 
 
 // --- INICIO: LÓGICA ESPECÍFICA DEL MÓDULO ---
-
 async function loadPedidos() {
     showLoading(true);
     pedidosTableBody.innerHTML = '';
@@ -83,7 +69,6 @@ async function loadPedidos() {
         showError('Error crítico: No se pudo encontrar el perfil seleccionado.');
         return;
     }
-
     const { data, error } = await supabaseClient.rpc('get_pedidos_vista', { 
         p_profile_id: profile.id_usuario 
     });
@@ -94,12 +79,10 @@ async function loadPedidos() {
         console.error(error);
         return;
     }
-
     if (data.length === 0) {
         pedidosTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No se encontraron pedidos.</td></tr>';
         return;
     }
-
     data.forEach(pedido => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -160,9 +143,7 @@ function handleEditarPedido(pedidoId) {
 }
 
 async function handleCancelarPedido(pedidoId) {
-    if (!confirm('¿Está seguro de que desea cancelar este pedido?')) {
-        return;
-    }
+    if (!confirm('¿Está seguro de que desea cancelar este pedido?')) return;
     const { error } = await supabaseClient.rpc('cancelar_pedido', { p_id_pedido: pedidoId });
     if (error) {
         alert('Error al cancelar el pedido: ' + error.message);
@@ -193,18 +174,14 @@ async function handleGuardarPedido() {
         alert('Debe agregar al menos un producto con una cantidad válida.');
         return;
     }
-
     setGuardarButtonState(true);
-
     const { error } = await supabaseClient.rpc('upsert_pedido_completo', {
         p_id_pedido: formIdPedido.value || null,
         p_observaciones: formObservaciones.value,
         p_id_cliente: formIdCliente.value,
         p_detalles: detalles
     });
-
     setGuardarButtonState(false);
-
     if (error) {
         alert('Error al guardar el pedido: ' + error.message);
         console.error(error);
@@ -233,7 +210,6 @@ async function populateSelects() {
         supabaseClient.rpc('get_lista_clientes'),
         supabaseClient.rpc('get_lista_recursos')
     ]);
-
     if (clientesRes.error) console.error('Error al cargar clientes:', clientesRes.error);
     else populateSelect(formIdCliente, clientesRes.data, 'id_cliente', 'nombre_cliente', 'Seleccione un cliente...');
     
@@ -247,8 +223,6 @@ async function populateSelects() {
     }
 }
 
-// --- INICIO: FUNCIONES DE UTILIDAD ---
-
 function populateSelect(selectElement, data, valueKey, textKey, placeholder = 'Seleccione...') {
     selectElement.innerHTML = `<option value="">${placeholder}</option>`;
     data.forEach(item => {
@@ -258,17 +232,14 @@ function populateSelect(selectElement, data, valueKey, textKey, placeholder = 'S
         selectElement.appendChild(option);
     });
 }
-
 function showLoading(isLoading) {
     loadingSpinner.style.display = isLoading ? 'block' : 'none';
     errorMessage.style.display = 'none';
 }
-
 function showError(message) {
     errorMessage.textContent = message;
     errorMessage.style.display = 'block';
 }
-
 function getStatusClass(status) {
     const statusMap = {
         'borrador': 'bg-secondary',
@@ -278,10 +249,7 @@ function getStatusClass(status) {
     };
     return statusMap[status] || 'bg-light text-dark';
 }
-
 function setGuardarButtonState(isSaving) {
     guardarPedidoBtn.disabled = isSaving;
     guardarSpinner.style.display = isSaving ? 'inline-block' : 'none';
 }
-
-// --- FIN: FUNCIONES DE UTILIDAD ---
