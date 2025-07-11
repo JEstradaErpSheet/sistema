@@ -1,5 +1,5 @@
 // Archivo: /modulos/pedidos/gestion/logic-form.js
-// Versión Final Fase 3: Lógica de guardado implementada.
+// Versión Final Fase 3: Todos los listeners y lógica de guardado implementados.
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Lógica de arranque
@@ -10,17 +10,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('welcome-message').textContent = `Bienvenido, ${profile.etiquetausuario || profile.usuario}`;
     document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
-    // Cargar y dibujar el formulario
-    await renderForm(profile.id_usuario);
+    // Pasamos el objeto 'profile' completo a renderForm
+    await renderForm(profile);
 });
 
-async function renderForm(profileId) {
+async function renderForm(profile) { 
     const formContainer = document.getElementById('form-container');
     const urlParams = new URLSearchParams(window.location.search);
     const pedidoId = urlParams.get('id');
 
     const { data, error } = await supabaseClient.rpc('get_data_for_gestion_form', {
-        p_profile_id: profileId,
+        p_profile_id: profile.id_usuario,
         p_pedido_id: pedidoId
     });
 
@@ -28,7 +28,10 @@ async function renderForm(profileId) {
         formContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
         return;
     }
-    const pedidoData = data.pedido_data;
+
+    // Corregimos la forma de acceder a los datos anidados
+    const pedidoData = data.pedido_data ? data.pedido_data.pedido_header : null;
+    const detallesData = data.pedido_data ? data.pedido_data.pedido_detalles : [];
     const listas = data.listas;
     
     if (pedidoData) {
@@ -73,17 +76,18 @@ async function renderForm(profileId) {
 
     window.listaRecursos = listas.recursos || [];
     
-    if (pedidoData && pedidoData.detalles && pedidoData.detalles.length > 0) {
-        pedidoData.detalles.forEach(detalle => addDetalleRow(detalle));
+    if (detallesData && detallesData.length > 0) {
+        detallesData.forEach(detalle => addDetalleRow(detalle));
     } else {
         addDetalleRow();
     }
     
-    setupFormEventListeners(profile.id_usuario);
+    setupFormEventListeners(profile.id_usuario); 
 }
 
 function addDetalleRow(detalle = {}) {
     const template = document.getElementById('detalle-row-template');
+    if (!template) return;
     const newRow = template.content.cloneNode(true);
     const select = newRow.querySelector('.select-recurso');
     
@@ -95,26 +99,38 @@ function addDetalleRow(detalle = {}) {
     document.getElementById('pedido-detalles-body').appendChild(newRow);
 }
 
+// =============================================================
+//               INICIO DE LA SECCIÓN CORREGIDA
+// =============================================================
 function setupFormEventListeners(profileId){
-    document.getElementById('btn-agregar-detalle').addEventListener('click', () => addDetalleRow());
-    
-    document.body.addEventListener('click', event => {
-        if (event.target.closest('.btn-remove-detalle')) {
-            event.target.closest('tr').remove();
+    // Usamos delegación de eventos para todos los botones del formulario
+    document.getElementById('form-container').addEventListener('click', async (event) => {
+        const target = event.target;
+
+        // Botón para agregar una nueva fila
+        if (target.closest('#btn-agregar-detalle')) {
+            addDetalleRow();
+        }
+
+        // Botón para eliminar una fila
+        if (target.closest('.btn-remove-detalle')) {
+            target.closest('tr').remove();
+        }
+
+        // Botón para guardar el pedido
+        if (target.closest('#btn-guardar-pedido')) {
+            await handleGuardarPedido(profileId);
         }
     });
-
-    // --- LÓGICA DE GUARDADO COMPLETA ---
-    document.getElementById('btn-guardar-pedido').addEventListener('click', async () => {
-        await handleGuardarPedido(profileId);
-    });
 }
+// =============================================================
+//                FIN DE LA SECCIÓN CORREGIDA
+// =============================================================
 
 async function handleGuardarPedido(profileId) {
     const guardarBtn = document.getElementById('btn-guardar-pedido');
     const spinner = document.getElementById('guardar-spinner');
 
-    // Recolectar datos del formulario
     const pedidoId = document.getElementById('form-id-pedido').value;
     const clienteId = document.getElementById('form-id-cliente').value;
     const observaciones = document.getElementById('form-observaciones').value;
@@ -123,15 +139,12 @@ async function handleGuardarPedido(profileId) {
         cantidad: row.querySelector('.input-cantidad').value
     })).filter(d => d.id_recurso && parseFloat(d.cantidad) > 0);
 
-    // Validaciones
     if (!clienteId) { alert('Por favor, seleccione un cliente.'); return; }
-    if (detalles.length === 0) { alert('Debe agregar al menos un producto con una cantidad válida.'); return; }
+    if (detalles.length === 0) { alert('Debe agregar al menos un producto.'); return; }
 
-    // Deshabilitar botón y mostrar spinner
     guardarBtn.disabled = true;
     spinner.style.display = 'inline-block';
 
-    // Llamar a la RPC
     const { data, error } = await supabaseClient.rpc('upsert_pedido_completo', {
         p_profile_id: profileId,
         p_id_pedido: pedidoId || null,
@@ -140,16 +153,14 @@ async function handleGuardarPedido(profileId) {
         p_detalles: detalles
     });
     
-    // Habilitar botón y ocultar spinner
     guardarBtn.disabled = false;
     spinner.style.display = 'none';
 
     if (error) {
-        alert(`Error al guardar el pedido: ${error.message}`);
+        alert(`Error al guardar: ${error.message}`);
     } else {
-        alert(data); // Muestra el mensaje de éxito de la función SQL
-        // Redirigir de vuelta a la lista de pedidos
-        window.location.href = './'; // './' navega a la página index de la carpeta actual
+        alert(data);
+        window.location.href = './';
     }
 }
 
