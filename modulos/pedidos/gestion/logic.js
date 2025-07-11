@@ -11,9 +11,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const profile = JSON.parse(profileString);
 
-    // No intentamos poblar la bienvenida ni el logout desde aquí,
-    // ya que esos elementos son parte de un layout superior
-    // y asumimos que ya han sido manejados.
+    // Poblamos la bienvenida y asignamos el evento al botón de logout
+    // Lo hacemos aquí porque sabemos que en esta página, la cabecera existe.
+    const welcomeMessage = document.getElementById('welcome-message');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (welcomeMessage) {
+        welcomeMessage.textContent = `Bienvenido, ${profile.etiquetausuario || profile.usuario}`;
+    }
+    if (logoutBtn && typeof handleLogout === 'function') {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
 
     // Cargar los componentes dinámicos de ESTA página
     await loadNavigationModules(profile.id_usuario);
