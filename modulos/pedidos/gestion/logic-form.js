@@ -1,5 +1,5 @@
 // Archivo: /modulos/pedidos/gestion/logic-form.js
-// Versión Corregida: Asigna correctamente los valores al editar.
+// Versión Final Fase 3: Lógica de guardado implementada.
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Lógica de arranque
@@ -28,7 +28,6 @@ async function renderForm(profileId) {
         formContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
         return;
     }
-
     const pedidoData = data.pedido_data;
     const listas = data.listas;
     
@@ -39,33 +38,23 @@ async function renderForm(profileId) {
     formContainer.innerHTML = `
         <form id="pedido-form" onsubmit="return false;">
             <input type="hidden" id="form-id-pedido" value="${pedidoData ? pedidoData.id_pedido : ''}">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="form-id-cliente" class="form-label">Cliente</label>
-                    <select class="form-select" id="form-id-cliente" required></select>
-                </div>
-            </div>
+            <div class="row mb-3"><div class="col-md-6">
+                <label for="form-id-cliente" class="form-label">Cliente</label>
+                <select class="form-select" id="form-id-cliente" required></select>
+            </div></div>
             <div class="mb-3">
                 <label for="form-observaciones" class="form-label">Observaciones</label>
                 <textarea class="form-control" id="form-observaciones">${pedidoData ? pedidoData.observaciones || '' : ''}</textarea>
             </div>
-            <hr>
-            <h5 class="mb-3">Detalles del Pedido</h5>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th style="width: 60%;">Recurso/Producto</th>
-                            <th style="width: 25%;">Cantidad</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="pedido-detalles-body"></tbody>
-                </table>
-            </div>
-            <button type="button" id="btn-agregar-detalle" class="btn btn-outline-success btn-sm">
-                <i class="bi bi-plus-lg"></i> Agregar Producto
-            </button>
+            <hr><h5 class="mb-3">Detalles del Pedido</h5>
+            <div class="table-responsive"><table class="table">
+                <thead><tr>
+                    <th style="width: 60%;">Recurso/Producto</th>
+                    <th style="width: 25%;">Cantidad</th><th></th>
+                </tr></thead>
+                <tbody id="pedido-detalles-body"></tbody>
+            </table></div>
+            <button type="button" id="btn-agregar-detalle" class="btn btn-outline-success btn-sm"><i class="bi bi-plus-lg"></i> Agregar Producto</button>
             <div class="mt-4 text-end">
                 <a href="./" class="btn btn-secondary">Cancelar</a>
                 <button type="button" id="btn-guardar-pedido" class="btn btn-primary">
@@ -73,21 +62,17 @@ async function renderForm(profileId) {
                     Guardar Pedido
                 </button>
             </div>
-        </form>
-    `;
+        </form>`;
 
-    // --- SECCIÓN DE LÓGICA CORREGIDA ---
     const selectCliente = document.getElementById('form-id-cliente');
     populateSelect(selectCliente, listas.clientes, 'id_cliente', 'nombre_cliente', 'Seleccione...');
     
-    // Si estamos editando, seleccionamos el cliente que ya venía en los datos.
     if (pedidoData && pedidoData.id_cliente) {
         selectCliente.value = pedidoData.id_cliente;
     }
 
     window.listaRecursos = listas.recursos || [];
-
-    // Si estamos editando y hay detalles, los dibujamos. Si no, una fila vacía.
+    
     if (pedidoData && pedidoData.detalles && pedidoData.detalles.length > 0) {
         pedidoData.detalles.forEach(detalle => addDetalleRow(detalle));
     } else {
@@ -104,22 +89,14 @@ function addDetalleRow(detalle = {}) {
     
     populateSelect(select, window.listaRecursos, 'id_recurso', 'nombre_recurso', 'Seleccione...');
     
-    // CORRECCIÓN: Asignar los valores del detalle a la nueva fila
-    if (detalle.id_recurso) {
-        select.value = detalle.id_recurso;
-    }
-    if (detalle.cantidad) {
-        newRow.querySelector('.input-cantidad').value = detalle.cantidad;
-    }
+    if (detalle.id_recurso) { select.value = detalle.id_recurso; }
+    if (detalle.cantidad) { newRow.querySelector('.input-cantidad').value = detalle.cantidad; }
     
     document.getElementById('pedido-detalles-body').appendChild(newRow);
 }
 
-// El resto de las funciones (setupFormEventListeners, populateSelect, etc.)
-// y el Punto 3.3 (handleGuardarPedido) los implementaremos después de esta verificación.
-// Por ahora, solo añadimos el listener para "Agregar Producto".
 function setupFormEventListeners(profileId){
-     document.getElementById('btn-agregar-detalle').addEventListener('click', () => addDetalleRow());
+    document.getElementById('btn-agregar-detalle').addEventListener('click', () => addDetalleRow());
     
     document.body.addEventListener('click', event => {
         if (event.target.closest('.btn-remove-detalle')) {
@@ -127,9 +104,53 @@ function setupFormEventListeners(profileId){
         }
     });
 
-    document.getElementById('btn-guardar-pedido').addEventListener('click', () => {
-        alert('La lógica de guardado se implementará en el Punto 3.3');
+    // --- LÓGICA DE GUARDADO COMPLETA ---
+    document.getElementById('btn-guardar-pedido').addEventListener('click', async () => {
+        await handleGuardarPedido(profileId);
     });
+}
+
+async function handleGuardarPedido(profileId) {
+    const guardarBtn = document.getElementById('btn-guardar-pedido');
+    const spinner = document.getElementById('guardar-spinner');
+
+    // Recolectar datos del formulario
+    const pedidoId = document.getElementById('form-id-pedido').value;
+    const clienteId = document.getElementById('form-id-cliente').value;
+    const observaciones = document.getElementById('form-observaciones').value;
+    const detalles = Array.from(document.querySelectorAll('#pedido-detalles-body tr')).map(row => ({
+        id_recurso: row.querySelector('.select-recurso').value,
+        cantidad: row.querySelector('.input-cantidad').value
+    })).filter(d => d.id_recurso && parseFloat(d.cantidad) > 0);
+
+    // Validaciones
+    if (!clienteId) { alert('Por favor, seleccione un cliente.'); return; }
+    if (detalles.length === 0) { alert('Debe agregar al menos un producto con una cantidad válida.'); return; }
+
+    // Deshabilitar botón y mostrar spinner
+    guardarBtn.disabled = true;
+    spinner.style.display = 'inline-block';
+
+    // Llamar a la RPC
+    const { data, error } = await supabaseClient.rpc('upsert_pedido_completo', {
+        p_profile_id: profileId,
+        p_id_pedido: pedidoId || null,
+        p_id_cliente: clienteId,
+        p_observaciones: observaciones,
+        p_detalles: detalles
+    });
+    
+    // Habilitar botón y ocultar spinner
+    guardarBtn.disabled = false;
+    spinner.style.display = 'none';
+
+    if (error) {
+        alert(`Error al guardar el pedido: ${error.message}`);
+    } else {
+        alert(data); // Muestra el mensaje de éxito de la función SQL
+        // Redirigir de vuelta a la lista de pedidos
+        window.location.href = './'; // './' navega a la página index de la carpeta actual
+    }
 }
 
 function populateSelect(selectElement, data, valueKey, textKey, placeholder) {
