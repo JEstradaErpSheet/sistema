@@ -1,10 +1,13 @@
 // Archivo: /modulos/pedidos/gestion/logic.js
-// Versión Final de la Fase 2: Botones funcionales y pulidos.
+// Versión Fase 3.2: Redirecciona al formulario al hacer clic en Editar/Ver.
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Verificación de perfil estándar
     const profileString = localStorage.getItem('selectedProfile');
-    if (!profileString) { window.location.href = '/select-profile.html'; return; }
+    if (!profileString) { 
+        window.location.href = '/select-profile.html'; 
+        return; 
+    }
     const profile = JSON.parse(profileString);
 
     // Poblar elementos de la cabecera
@@ -21,8 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Cargar componentes dinámicos de la página
     await loadNavigationModules(profile.id_usuario);
     await loadPedidosAndActions(profile.id_usuario);
-
-    // Asignar el listener principal para todas las acciones
+    
+    // Asignar listeners para los botones de acción
     setupActionListeners(profile.id_usuario);
 });
 
@@ -33,7 +36,7 @@ async function loadNavigationModules(profileId) {
     const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa', { p_profile_id: profileId });
     if (error) { console.error('Error cargando navegación:', error); return; }
     
-    const moduleBasePath = '/modulos/pedidos/';
+    const moduleBasePath = '/modulos/pedidos/'; 
     navContainer.innerHTML = modules.map(module => {
         const url = module.url_pagina || '#';
         const isActive = module.url_pagina ? url.startsWith(moduleBasePath) : false;
@@ -58,10 +61,8 @@ async function loadPedidosAndActions(profileId) {
     }
     
     tableBody.innerHTML = pedidos.map(pedido => {
-        // Botón "Ver Detalles" siempre presente
         const viewButton = `<button class="btn btn-sm btn-info" data-action="view_details" data-id="${pedido.id_pedido}">Ver Detalles</button>`;
-
-        // Botones de flujo de trabajo condicionales
+        
         const workflowActionsHtml = (pedido.workflow_actions || []).map(action => 
             `<button 
                 class="btn btn-sm ${action.class}" 
@@ -91,15 +92,24 @@ function setupActionListeners(profileId) {
         const button = event.target.closest('button[data-action]');
         if (!button) return;
 
+        event.preventDefault(); // Prevenir cualquier comportamiento por defecto
+
         const actionId = button.dataset.action;
         const pedidoId = button.dataset.id;
         const confirmMessage = button.dataset.confirmMessage;
 
-        // Acciones que no necesitan confirmación ni RPC de estado
+        // =============================================================
+        //               INICIO DE LA SECCIÓN MODIFICADA
+        // =============================================================
+        // Acciones que navegan a otra página
         if (actionId === 'edit' || actionId === 'view_details') {
-            alert(`Acción: ${actionId} en Pedido: ${pedidoId}. La redirección se implementará en la Fase 3.`);
+            // Construimos la URL al formulario y le pasamos el ID del pedido
+            window.location.href = `./form.html?id=${pedidoId}`;
             return;
         }
+        // =============================================================
+        //                FIN DE LA SECCIÓN MODIFICADA
+        // =============================================================
 
         // Acciones que sí necesitan confirmación y RPC
         if (confirmMessage) {
@@ -126,7 +136,7 @@ function setupActionListeners(profileId) {
         } catch (err) {
             console.error('Error al ejecutar la acción:', err);
             showToast(`Error: ${err.message}`, true);
-            await loadPedidosAndActions(profileId); // Refrescar incluso si hay error
+            await loadPedidosAndActions(profileId);
         }
     });
 }
@@ -134,18 +144,14 @@ function setupActionListeners(profileId) {
 // --- FUNCIONES DE UTILIDAD ---
 function getStatusClass(status) {
     const statusMap = {
-        'borrador': 'bg-secondary',
-        'ordenado': 'bg-primary',
-        'transito': 'bg-info',
-        'entregado': 'bg-success',
-        'cancelado': 'bg-danger'
+        'BORRADOR': 'bg-secondary', 'ORDENADO': 'bg-primary', 'TRANSITO': 'bg-info', 
+        'ENTREGADO': 'bg-success', 'CANCELADO': 'bg-danger'
     };
     return statusMap[status] || 'bg-light text-dark';
 }
 
 function showToast(message, isError = false) {
     const toastId = 'toast-notification-id';
-    // Remover toast existente si lo hay
     const existingToast = document.getElementById(toastId);
     if (existingToast) { existingToast.remove(); }
     
