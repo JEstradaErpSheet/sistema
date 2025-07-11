@@ -1,8 +1,45 @@
 // Archivo: /modulos/pedidos/gestion/logic.js
-// ...
+// Versión corregida y simplificada
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Verificación de perfil estándar
+    const profileString = localStorage.getItem('selectedProfile');
+    if (!profileString) { 
+        // Si no hay perfil, no podemos hacer nada, así que redirigimos.
+        window.location.href = '/select-profile.html'; 
+        return; 
+    }
+    const profile = JSON.parse(profileString);
+
+    // No intentamos poblar la bienvenida ni el logout desde aquí,
+    // ya que esos elementos son parte de un layout superior
+    // y asumimos que ya han sido manejados.
+
+    // Cargar los componentes dinámicos de ESTA página
+    await loadNavigationModules(profile.id_usuario);
+    await loadPedidosAndActions(profile.id_usuario);
+});
+
+async function loadNavigationModules(profileId) {
+    // Esta función se queda igual. Carga la barra de navegación del módulo.
+    const navContainer = document.getElementById('module-navigation-bar');
+    if (!navContainer) return; // Chequeo de seguridad
+
+    const { data: modules, error } = await supabaseClient.rpc('get_allowed_modules_citfsa', { p_profile_id: profileId });
+    if (error) { console.error('Error cargando navegación:', error); return; }
+    
+    const moduleBasePath = '/modulos/pedidos/'; 
+    navContainer.innerHTML = modules.map(module => {
+        const url = module.url_pagina || '#';
+        const isActive = module.url_pagina ? module.url_pagina.startsWith(moduleBasePath) : false;
+        return `<a href="${url}" class="nav-item ${isActive ? 'active' : ''}">${module.etiqueta}</a>`;
+    }).join('');
+}
 
 async function loadPedidosAndActions(profileId) {
     const tableBody = document.getElementById('pedidos-table-body');
+    if (!tableBody) return; // Chequeo de seguridad
+
     const { data: pedidos, error } = await supabaseClient.rpc('get_gestion_pedidos_vista', { p_profile_id: profileId });
 
     if (error) {
@@ -15,25 +52,12 @@ async function loadPedidosAndActions(profileId) {
     }
     
     tableBody.innerHTML = pedidos.map(pedido => {
-        // --- INICIO DE LA LÓGICA MEJORADA ---
-
-        // 1. Siempre empezamos con el botón "Ver Detalles"
-        let actionsHtml = `<button class="btn btn-sm btn-info" data-action="view_details" data-id="${pedido.id_pedido}">Ver Detalles</button>`;
-
-        // 2. Leemos las acciones de flujo de trabajo del backend
-        const workflowActions = pedido.workflow_actions || []; // Usamos un array vacío si es null
-
-        // 3. Añadimos los botones de flujo de trabajo a los que ya teníamos
-        const workflowActionsHtml = workflowActions.map(action => 
+        const actionsHtml = pedido.workflow_actions.map(action => 
             `<button class="btn btn-sm ${action.class}" data-action="${action.action_id}" data-id="${pedido.id_pedido}">${action.name}</button>`
         ).join(' ');
 
-        // 4. Combinamos ambos, si hay acciones de flujo de trabajo
-        if (workflowActionsHtml) {
-            actionsHtml += ' ' + workflowActionsHtml;
-        }
-
-        // --- FIN DE LA LÓGICA MEJORADA ---
+        // El botón Ver Detalles siempre se añade
+        const finalActions = `<button class="btn btn-sm btn-info" data-action="view_details" data-id="${pedido.id_pedido}">Ver Detalles</button>` + (actionsHtml ? ' ' + actionsHtml : '');
 
         return `
             <tr>
@@ -42,10 +66,8 @@ async function loadPedidosAndActions(profileId) {
                 <td>${pedido.nombreusuario || 'N/A'}</td>
                 <td>${pedido.observaciones || ''}</td>
                 <td><span class="badge bg-secondary">${pedido.estadopedido || 'N/A'}</span></td>
-                <td class="text-end">${actionsHtml}</td>
+                <td class="text-end">${finalActions}</td>
             </tr>
         `;
     }).join('');
 }
-
-// ...
