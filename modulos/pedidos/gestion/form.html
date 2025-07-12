@@ -16,43 +16,48 @@
 </head>
 <body>
     <div class="module-container">
-        <!-- Cabecera y Main sin cambios -->
-        <header class="module-header"><!-- ... --></header>
+        <!-- ============================================= -->
+        <!--        CABECERA COMPLETA RESTAURADA           -->
+        <!-- ============================================= -->
+        <header class="module-header">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 align-items-center">
+                    <li class="breadcrumb-item"><a href="/home.html">Inicio</a></li>
+                    <li class="breadcrumb-item"><a href="../">Pedidos</a></li>
+                    <li class="breadcrumb-item"><a href="./">Gestión de Pedidos</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" id="form-breadcrumb-title">Nuevo Pedido</li>
+                </ol>
+            </nav>
+            <div class="header-user">
+                <span id="welcome-message" class="welcome-message"></span>
+                <button id="logout-btn" class="logout-button">Cerrar Sesión</button>
+            </div>
+        </header>
+
         <main class="content-area">
             <div id="form-container">
-                <div class="text-center my-5"><div class="spinner-border"></div></div>
+                <div class="text-center my-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Cargando formulario...</span>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
 
-    <!-- ============================================= -->
-    <!--   NUEVA PLANTILLA CON CAMPOS DE PRECIO     -->
-    <!-- ============================================= -->
+    <!-- El template no cambia -->
     <template id="detalle-row-template">
         <tr>
-            <!-- Columna del Recurso -->
-            <td>
-                <select class="form-select form-select-sm select-recurso"></select>
-            </td>
-            <!-- Columna de Cantidad -->
-            <td>
-                <input type="number" class="form-control form-control-sm input-cantidad text-end" value="1" min="0.01" step="0.01">
-            </td>
-            <!-- Nueva Columna de Precio (solo lectura) -->
-            <td class="text-end">
-                <span class="input-precio">0.00</span>
-            </td>
-            <!-- Nueva Columna de Subtotal (solo lectura) -->
-            <td class="text-end fw-bold">
-                <span class="input-subtotal">0.00</span>
-            </td>
-            <!-- Columna de Acciones -->
-            <td class="text-end">
-                <button type="button" class="btn btn-danger btn-sm btn-remove-detalle" title="Eliminar Fila">
-                    <i class="bi bi-trash"></i>
-                </button>
+            <td><select class="form-select form-select-sm select-recurso"></select></td>
+            <td><input type="number" class="form-control form-control-sm input-cantidad text-end" value="1" min="0.01" step="0.01"></td>
+            <td class="text-end"><span class="input-precio">0.00</span></td>
+            <td class="text-end fw-bold"><span class="input-subtotal">0.00</span></td>
+            <td class="text-center">
+                <button type="button" class="btn btn-danger btn-sm btn-remove-detalle" title="Eliminar Fila"><i class="bi bi-trash"></i></button>
             </td>
         </tr>
     </template>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
